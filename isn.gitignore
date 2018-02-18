@@ -1,6 +1,0 @@
-# ISN AutoIt Studio Project
-*.isn
-
-# Executable
-*.exe
-Release/
