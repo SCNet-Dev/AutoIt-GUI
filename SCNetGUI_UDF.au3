@@ -94,6 +94,9 @@ EndIf
 ; _SCN_InputBox - Creates a simple modern input box
 ; _SCN_AddHSeperator - Adds a horizontal seperator line to the GUI
 ; _SCN_AddVSeperator - Adds a vertical seperator line to the GUI
+;
+;==================================================================================================
+;_SCN_CreateIcon - Create an icon / image
 
 #EndRegion Metro Functions Overview
 
@@ -1200,7 +1203,7 @@ EndFunc   ;==>_SCN_CreateButton
 ; Description ...: Creates Windows 10 style buttons with a frame around. Hovering changes the button color to a lighter color.
 ; Syntax ........: _SCN_CreateButtonEx($Text, $Left, $Top, $Width, $Height[, $BG_Color = $ButtonBKColor[,
 ;                  $Font_Color = $ButtonTextColor[, $Font = "Arial"[, $Fontsize = 12.5[, $FontStyle = 1[,
-;                  $FrameColor = "0xFFFFFF"]]]]]])
+;                  $FrameColor = "0x1B1B1B"[, $Darker = False[, $Icon = ""]]]]]]]])
 ; Parameters ....: $Text            	- Text of the button.
 ;                  $Left              	- Left pos.
 ;                  $Top                 - Top pos.
@@ -1212,11 +1215,13 @@ EndFunc   ;==>_SCN_CreateButton
 ;                  $Fontsize        	- [optional] Fontsize. Default is 12.5.
 ;                  $FontStyle       	- [optional] Fontstyle. Default is 1.
 ;                  $FrameColor      	- [optional] Button frame color. Default is "0xFFFFFF".
+;				   $Darker				- [optional] Hover effect darker for light button. Default is false.
+;				   $Icon				- [optional] Icon for the button. Default is none.
 ; Return values .: Handle to the button.
 ; Example .......: _SCN_CreateButtonEx("Button 1",50,50,120,34)
 ; ===============================================================================================================================
 
-Func _SCN_CreateButtonEx($Text, $Left, $Top, $Width, $Height, $BG_Color = $ButtonBKColor, $Font_Color = $ButtonTextColor, $Font = "Arial", $Fontsize = 10, $FontStyle = 1, $FrameColor = "0xFFFFFF")
+Func _SCN_CreateButtonEx($Text, $Left, $Top, $Width, $Height, $BG_Color = $ButtonBKColor, $Font_Color = $ButtonTextColor, $Font = "Arial", $Fontsize = 10, $FontStyle = 1, $FrameColor = "0x1B1B1B", $Darker = False, $Icon = "")
 	Local $Button_Array[16]
 
 	Local $btnDPI = _HighDPICheck()
@@ -1248,7 +1253,11 @@ Func _SCN_CreateButtonEx($Text, $Left, $Top, $Width, $Height, $BG_Color = $Butto
 
 	;Create Button graphics
 	Local $Button_Graphic1 = _iGraphicCreate($Width, $Height, $BG_Color, 0, 5) ;Default
-	Local $Button_Graphic2 = _iGraphicCreate($Width, $Height, StringReplace(_AlterBrightness($BG_Color, 25), "0x", "0xFF"), 0, 5) ;Hover
+	If $Darker Then
+		Local $Button_Graphic2 = _iGraphicCreate($Width, $Height, StringReplace(_AlterBrightness($BG_Color, -10), "0x", "0xFF"), 0, 5) ;Hover
+	Else
+		Local $Button_Graphic2 = _iGraphicCreate($Width, $Height, StringReplace(_AlterBrightness($BG_Color, 25), "0x", "0xFF"), 0, 5) ;Hover
+	EndIf
 	Local $Button_Graphic3 = _iGraphicCreate($Width, $Height, $BG_Color, 0, 5) ;Disabled
 
 	;Create font, Set font options
@@ -1258,14 +1267,36 @@ Func _SCN_CreateButtonEx($Text, $Left, $Top, $Width, $Height, $BG_Color = $Butto
 	_GDIPlus_StringFormatSetLineAlign($hFormat, 1)
 
 	;Draw button text
-	_GDIPlus_GraphicsDrawStringEx($Button_Graphic1[0], $Text, $hFont, $tLayout, $hFormat, $Brush_BTN_FontColor)
-	_GDIPlus_GraphicsDrawStringEx($Button_Graphic2[0], $Text, $hFont, $tLayout, $hFormat, $Brush_BTN_FontColor)
-	_GDIPlus_GraphicsDrawStringEx($Button_Graphic3[0], $Text, $hFont, $tLayout, $hFormat, $Brush_BTN_FontColorDis)
+	If  $Icon = "" Then
+		_GDIPlus_GraphicsDrawStringEx($Button_Graphic1[0], $Text, $hFont, $tLayout, $hFormat, $Brush_BTN_FontColor)
+		_GDIPlus_GraphicsDrawStringEx($Button_Graphic2[0], $Text, $hFont, $tLayout, $hFormat, $Brush_BTN_FontColor)
+		_GDIPlus_GraphicsDrawStringEx($Button_Graphic3[0], $Text, $hFont, $tLayout, $hFormat, $Brush_BTN_FontColorDis)
+	EndIf
 
 	;Add frame
 	_GDIPlus_GraphicsDrawRect($Button_Graphic1[0], 0, 0, $Width, $Height, $Pen_BTN_FrameHoverColor)
 	_GDIPlus_GraphicsDrawRect($Button_Graphic2[0], 0, 0, $Width, $Height, $Pen_BTN_FrameHoverColor)
 	_GDIPlus_GraphicsDrawRect($Button_Graphic3[0], 0, 0, $Width, $Height, $Pen_BTN_FrameHoverColorDis)
+
+	;Add Icon
+	If  $Icon <> "" Then
+		If $HIGHDPI_SUPPORT Then
+			Local $Button_Icon = _GDIPlus_BitmapCreateFromFile($Icon)
+			Local $Button_Icon_Dpi = _GDIPlus_ImageScale($Button_Icon, $gdpi, $gdpi, 6)
+			Local $Button_Icon_Dis = _GDIPlus_ImageScale($Button_Icon, $gdpi, $gdpi, 6)
+		Else
+			Local $Button_Icon_Dpi = _GDIPlus_BitmapCreateFromFile($Icon)
+			Local $Button_Icon_Dis = _GDIPlus_BitmapCreateFromFile($Icon)
+		EndIf
+		; Effect for icon disabled
+		Local $hEffect = _GDIPlus_EffectCreateBrightnessContrast(100, 0)
+		_GDIPlus_BitmapApplyEffect($Button_Icon_Dis, $hEffect)
+		Local $Icon_W = _GDIPlus_ImageGetWidth($Button_Icon_Dpi)
+		Local $Icon_H = _GDIPlus_ImageGetHeight($Button_Icon_Dpi)
+ 		_GDIPlus_GraphicsDrawImage($Button_Graphic1[0], $Button_Icon_Dpi, ($Width-$Icon_W)/2, ($Height-$Icon_H)/2)
+ 		_GDIPlus_GraphicsDrawImage($Button_Graphic2[0], $Button_Icon_Dpi, ($Width-$Icon_W)/2, ($Height-$Icon_H)/2)
+		_GDIPlus_GraphicsDrawImage($Button_Graphic3[0], $Button_Icon_Dis, ($Width-$Icon_W)/2, ($Height-$Icon_H)/2)
+	EndIf
 
 	;Release created objects
 	_GDIPlus_FontDispose($hFont)
@@ -1275,6 +1306,11 @@ Func _SCN_CreateButtonEx($Text, $Left, $Top, $Width, $Height, $BG_Color = $Butto
 	_GDIPlus_BrushDispose($Brush_BTN_FontColorDis)
 	_GDIPlus_PenDispose($Pen_BTN_FrameHoverColor)
 	_GDIPlus_PenDispose($Pen_BTN_FrameHoverColorDis)
+	If  $Icon <> "" Then
+		If $HIGHDPI_SUPPORT Then _GDIPlus_BitmapDispose($Button_Icon)
+		_GDIPlus_BitmapDispose($Button_Icon_Dpi)
+		_GDIPlus_BitmapDispose($Button_Icon_Dis)
+	EndIf
 
 	;Set graphic and return Bitmap handle
 	$Button_Array[0] = GUICtrlCreatePic("", $Left, $Top, $Width, $Height)
@@ -3573,3 +3609,62 @@ Func _iFullscreenToggleBtn($idCtrl, $hWnd)
 	If $ControlBtnsAutoMode Then _SCN_FullscreenToggle($hWnd)
 EndFunc   ;==>_iFullscreenToggleBtn
 
+; #FUNCTION# ====================================================================================================================
+; Name ..........: _SCN_CreateIcon
+; Description ...: Create an icon.
+; Syntax ........: _SCN_CreateIcon($Icon, $Left, $Top)
+; Parameters ....: $Icon                - Path of the icon
+;                  $Left                - Position X
+;                  $Top                 - Position Y
+; Return values .: Handle to the created icon
+; Example .......: _SCN_CreateIcon("Example.ico", 20, 50)
+; ===============================================================================================================================
+
+Func _SCN_CreateIcon($Icon, $Left, $Top)
+	Local $Button_Array[16]
+
+	Local $btnDPI = _HighDPICheck()
+	If $HIGHDPI_SUPPORT Then
+		$Left = Round($Left * $gDPI)
+		$Top = Round($Top * $gDPI)
+	EndIf
+
+	$Button_Array[1] = False ; Set hover OFF
+	$Button_Array[3] = "2" ; Type
+	$Button_Array[15] = GetCurrentGUI()
+
+	;Set Colors
+	$BG_Color = "0x00" & Hex($GUIThemeColor, 6)
+	
+	;Create Icon Bitmap
+	If $HIGHDPI_SUPPORT Then
+		Local $BMP_Icon = _GDIPlus_BitmapCreateFromFile($Icon)
+		Local $BMP_Icon_dpi = _GDIPlus_ImageScale($BMP_Icon, $gdpi, $gdpi, 6)
+	Else
+		Local $BMP_Icon_dpi = _GDIPlus_BitmapCreateFromFile($Icon)
+	EndIf
+	Local $Width = _GDIPlus_ImageGetWidth($BMP_Icon_dpi)
+	Local $Height = _GDIPlus_ImageGetHeight($BMP_Icon_dpi)
+
+	;Create Button graphics
+	Local $Icon_Graphic1 = _iGraphicCreate($Width, $Height, $BG_Color, 0, 5) ;Default
+	
+	;Define anti-aliasing
+	_GDIPlus_GraphicsSetSmoothingMode($Icon_Graphic1[0], $GDIP_SMOOTHINGMODE_HIGHQUALITY)
+	
+	;Add Icon
+	_GDIPlus_GraphicsDrawImage($Icon_Graphic1[0], $BMP_Icon_dpi, 0, 0)
+
+	;Release created objects
+	If $HIGHDPI_SUPPORT Then _GDIPlus_BitmapDispose($BMP_Icon)
+	_GDIPlus_BitmapDispose($BMP_Icon_dpi)
+
+	;Set graphic and return Bitmap handle
+	$Button_Array[0] = GUICtrlCreatePic("", $Left, $Top, $Width, $Height)
+	$Button_Array[5] = _iGraphicCreateBitmapHandle($Button_Array[0], $Icon_Graphic1)
+
+	;Set GUI Resizing
+	GUICtrlSetResizing($Button_Array[0], 768)
+
+	Return $Button_Array[0]
+EndFunc

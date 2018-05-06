@@ -1,3 +1,9 @@
 *.isn
 *.exe
 Release/
+
+GFX/
+
+Base/
+
+Test\.au3
