@@ -81,7 +81,7 @@ EndIf
 ;_SCN_CheckboxIsChecked - Checks if a checkbox is checked. Returns True or False.
 ;_SCN_CheckboxCheck - Checks a checkbox.
 ;_SCN_CheckboxUncheck - Unchecks a checkbox.
-; Metro_CheckboxSwitch - Toggles between checked/unchecked state and then returns the current state.  -> Should only be used to handle user clicks
+;_SCN_CheckboxSwitch - Toggles between checked/unchecked state and then returns the current state.  -> Should only be used to handle user clicks
 
 ;=============================================MsgBox===============================================
 ;_SCN_MsgBox - Creates a MsgBox with a OK button and displays the text. _GUIDisable($GUI, 0, 30) should be used before, so the MsgBox is better visible and afterwards _GUIDisable($GUI).
@@ -546,7 +546,6 @@ EndFunc   ;==>_SCN_AddControlButton_Back
 Func _SCN_MenuStart($mGUI, $mWidth, $ButtonsArray, $bFont = "Segoe UI", $bFontSize = 9, $bFontStyle = 0)
 	Local $Metro_MenuBtn = _iGetCtrlHandlebyType("8", $mGUI)
 	If Not $Metro_MenuBtn Then Return SetError(1)
-	GUICtrlSetState($Metro_MenuBtn, 128)
 
 	Local $iButtonsArray[UBound($ButtonsArray)]
 	Local $cbDPI = _HighDPICheck()
@@ -593,7 +592,6 @@ Func _SCN_MenuStart($mGUI, $mWidth, $ButtonsArray, $bFont = "Segoe UI", $bFontSi
 				Next
 				GUIDelete($MenuForm)
 				If $mOnEventMode Then Opt("GUIOnEventMode", 1) ;reactivate oneventmode
-				GUICtrlSetState($Metro_MenuBtn, 64)
 				Return SetError(1, 0, "none")
 			EndIf
 		Else
@@ -612,7 +610,6 @@ Func _SCN_MenuStart($mGUI, $mWidth, $ButtonsArray, $bFont = "Segoe UI", $bFontSi
 				Next
 				GUIDelete($MenuForm)
 				If $mOnEventMode Then Opt("GUIOnEventMode", 1) ;reactivate oneventmode
-				GUICtrlSetState($Metro_MenuBtn, 64)
 				Return $iB
 			EndIf
 		Next
@@ -1249,7 +1246,7 @@ Func _SCN_CreateButtonEx($Text, $Left, $Top, $Width, $Height, $BG_Color = $Butto
 	Local $Brush_BTN_FontColor = _GDIPlus_BrushCreateSolid($Font_Color)
 	Local $Pen_BTN_FrameHoverColor = _GDIPlus_PenCreate($FrameColor, $FrameSize)
 	Local $Pen_BTN_FrameHoverColorDis = _GDIPlus_PenCreate(StringReplace(_AlterBrightness($Font_Color, -30), "0x", "0xFF"), $FrameSize)
-	Local $Brush_BTN_FontColorDis = _GDIPlus_BrushCreateSolid(StringReplace(_AlterBrightness($Font_Color, -30), "0x", "0xFF"))
+	Local $Brush_BTN_FontColorDis = _GDIPlus_BrushCreateSolid(StringReplace(_AlterBrightness($Font_Color, +50), "0x", "0xFF"))
 
 	;Create Button graphics
 	Local $Button_Graphic1 = _iGraphicCreate($Width, $Height, $BG_Color, 0, 5) ;Default
@@ -1258,7 +1255,7 @@ Func _SCN_CreateButtonEx($Text, $Left, $Top, $Width, $Height, $BG_Color = $Butto
 	Else
 		Local $Button_Graphic2 = _iGraphicCreate($Width, $Height, StringReplace(_AlterBrightness($BG_Color, 25), "0x", "0xFF"), 0, 5) ;Hover
 	EndIf
-	Local $Button_Graphic3 = _iGraphicCreate($Width, $Height, $BG_Color, 0, 5) ;Disabled
+	Local $Button_Graphic3 = _iGraphicCreate($Width, $Height, StringReplace(_AlterBrightness($BG_Color, -10), "0x", "0xFF"), 0, 5) ;Disabled
 
 	;Create font, Set font options
 	Local $hFormat = _GDIPlus_StringFormatCreate(), $hFamily = _GDIPlus_FontFamilyCreate($Font), $hFont = _GDIPlus_FontCreate($hFamily, $Fontsize, $FontStyle)
@@ -1282,8 +1279,8 @@ Func _SCN_CreateButtonEx($Text, $Left, $Top, $Width, $Height, $BG_Color = $Butto
 	If  $Icon <> "" Then
 		If $HIGHDPI_SUPPORT Then
 			Local $Button_Icon = _GDIPlus_BitmapCreateFromFile($Icon)
-			Local $Button_Icon_Dpi = _GDIPlus_ImageScale($Button_Icon, $gdpi, $gdpi, 6)
-			Local $Button_Icon_Dis = _GDIPlus_ImageScale($Button_Icon, $gdpi, $gdpi, 6)
+			Local $Button_Icon_Dpi = _GDIPlus_ImageScale($Button_Icon, $gdpi, $gdpi)
+			Local $Button_Icon_Dis = _GDIPlus_ImageScale($Button_Icon, $gdpi, $gdpi)
 		Else
 			Local $Button_Icon_Dpi = _GDIPlus_BitmapCreateFromFile($Icon)
 			Local $Button_Icon_Dis = _GDIPlus_BitmapCreateFromFile($Icon)
@@ -1439,6 +1436,133 @@ Func _SCN_CreateButtonEx2($Text, $Left, $Top, $Width, $Height, $BG_Color = $Butt
 
 EndFunc   ;==>_SCN_CreateButtonEx2
 
+; #FUNCTION# ====================================================================================================================
+; Name ..........: _SCN_CreateButtonBar
+; Description ...: Creates Windows 10 style buttons used for tab. The font color change on hover and the bottom border cahnge on state
+; Syntax ........: _SCN_CreateButtonBar($Text, $Left, $Top, $Width, $Height[, $BG_Color = $GUIThemeColor[,
+;                  $Font_Color = "0x000000"[, $Font = "Arial"[, $Fontsize = 11[, $FontStyle = 1[,
+;                  $Font_SecondColor = $ButtonBKColor[, $Bar_Color = $GUIBorderColor[, $Bar_SecondColor = $ButtonBKColor,
+;                  [ $Align = 1[, $Icon = ""]]]]]]]]]])
+; Parameters ....: $Text            	- Text of the button.
+;                  $Left              	- Left pos.
+;                  $Top                 - Top pos.
+;                  $Width               - Width.
+;                  $Height              - Height.
+;                  $BG_Color       	    - [optional] Button background color. Default is $GUIThemeColor.
+;                  $Font_Color       	- [optional] Font color. Default is "0x000000".
+;                  $Font            	- [optional] Font. Default is "Arial".
+;                  $Fontsize        	- [optional] Fontsize. Default is 12.5.
+;                  $FontStyle       	- [optional] Fontstyle. Default is 1.
+;                  $Font_SecondColor    - [optional] Font hover (and inactive) color. Default is $ButtonBKColor.
+;				   $Bar_Color			- [optional] Bottom border color. Default is $GUIBorderColor.
+;				   $Bar_SecondColor		- [optional] Bottom border hover (and inactive) color. Default is $ButtonBKColor.
+;				   $Align				- [optional] Text alignement - Default is 1
+;				   $Icon				- [optional] Icon for the button. Default is none.
+; Return values .: Handle to the button.
+; Example .......: _SCN_CreateButtonBar("Button 1",50,50,120,34)
+; ===============================================================================================================================
+
+Func _SCN_CreateButtonBar($Text, $Left, $Top, $Width, $Height, $BG_Color = $GUIThemeColor, $Font_Color = "0x000000", $Font = "Arial", $Fontsize = 11, $FontStyle = 1, $Font_SecondColor = $ButtonBKColor, $Bar_Color = $GUIBorderColor, $Bar_SecondColor = $ButtonBKColor, $Align = 1, $Icon = "")
+	Local $Button_Array[16]
+
+	Local $btnDPI = _HighDPICheck()
+	If $HIGHDPI_SUPPORT Then
+		$Left = Round($Left * $gDPI)
+		$Top = Round($Top * $gDPI)
+		$Width = Round($Width * $gDPI)
+		$Height = Round($Height * $gDPI)
+	Else
+		$Fontsize = ($Fontsize / $Font_DPI_Ratio)
+	EndIf
+
+	$Button_Array[1] = False ; Set hover OFF
+	$Button_Array[3] = "5" ; Type
+	$Button_Array[15] = GetCurrentGUI()
+
+	;Calculate Barsize
+	Local $BarSize = Round(2 * $btnDPI)
+	If Not (Mod($BarSize, 2) = 0) Then $BarSize = $BarSize - 1
+
+	;Set Colors
+	$BG_Color = "0xFF" & Hex($BG_Color, 6)
+	$Font_Color = "0xFF" & Hex($Font_Color, 6)
+	$Font_SecondColor = "0xFF" & Hex($Font_SecondColor, 6)
+	$Bar_Color = "0xFF" & Hex($Bar_Color, 6)
+	$Bar_SecondColor = "0xFF" & Hex($Bar_SecondColor, 6)
+	Local $Brush_BTN_FontColor = _GDIPlus_BrushCreateSolid($Font_Color)
+	Local $Brush_BTN_SecondFontColor = _GDIPlus_BrushCreateSolid($Font_SecondColor)
+	Local $Pen_BTN_BarColor = _GDIPlus_PenCreate($Bar_Color, $BarSize)
+	Local $Pen_BTN_SecondBarColor = _GDIPlus_PenCreate($Bar_SecondColor, $BarSize*2)
+
+	;Create Button graphics
+	Local $Button_Graphic1 = _iGraphicCreate($Width, $Height, $BG_Color, 0, 5) ;Default
+	Local $Button_Graphic2 = _iGraphicCreate($Width, $Height, $BG_Color, 0, 5) ;Hover
+	Local $Button_Graphic3 = _iGraphicCreate($Width, $Height, $BG_Color, 0, 5) ;Disabled
+
+	;Create font, Set font options
+	Local $hFormat = _GDIPlus_StringFormatCreate(), $hFamily = _GDIPlus_FontFamilyCreate($Font), $hFont = _GDIPlus_FontCreate($hFamily, $Fontsize, $FontStyle)
+	Local $tLayout = _GDIPlus_RectFCreate(0, 0, $Width, $Height)
+	_GDIPlus_StringFormatSetAlign($hFormat, $Align)
+	_GDIPlus_StringFormatSetLineAlign($hFormat, 1)
+
+	;Draw button text
+	If  $Icon = "" Then
+		_GDIPlus_GraphicsDrawStringEx($Button_Graphic1[0], $Text, $hFont, $tLayout, $hFormat, $Brush_BTN_FontColor)
+		_GDIPlus_GraphicsDrawStringEx($Button_Graphic2[0], $Text, $hFont, $tLayout, $hFormat, $Brush_BTN_SecondFontColor)
+		_GDIPlus_GraphicsDrawStringEx($Button_Graphic3[0], $Text, $hFont, $tLayout, $hFormat, $Brush_BTN_SecondFontColor)
+	EndIf
+
+	;Add Bar
+	_GDIPlus_GraphicsDrawLine($Button_Graphic1[0], 0, $Height-$BarSize/2, $Width, $Height-$BarSize/2, $Pen_BTN_BarColor)
+	_GDIPlus_GraphicsDrawLine($Button_Graphic2[0], 0, $Height-$BarSize/2, $Width, $Height-$BarSize/2, $Pen_BTN_BarColor)
+	_GDIPlus_GraphicsDrawLine($Button_Graphic3[0], 0, $Height-$BarSize/2, $Width, $Height-$BarSize, $Pen_BTN_SecondBarColor)
+
+	;Define anti-aliasing
+	_GDIPlus_GraphicsSetSmoothingMode($Button_Graphic1[0], $GDIP_SMOOTHINGMODE_HIGHQUALITY)
+	_GDIPlus_GraphicsSetSmoothingMode($Button_Graphic2[0], $GDIP_SMOOTHINGMODE_HIGHQUALITY)
+	_GDIPlus_GraphicsSetSmoothingMode($Button_Graphic3[0], $GDIP_SMOOTHINGMODE_HIGHQUALITY)
+
+	;Add Icon
+	If  $Icon <> "" Then
+		If $HIGHDPI_SUPPORT Then
+			Local $Button_Icon = _GDIPlus_BitmapCreateFromFile($Icon)
+			Local $Button_Icon_dpi = _GDIPlus_ImageScale($Button_Icon, $gdpi, $gdpi, 6)
+		Else
+			Local $Button_Icon_dpi = _GDIPlus_BitmapCreateFromFile($Icon)
+		EndIf
+		Local $Icon_W = _GDIPlus_ImageGetWidth($Button_Icon_dpi)
+		Local $Icon_H = _GDIPlus_ImageGetHeight($Button_Icon_dpi)
+ 		_GDIPlus_GraphicsDrawImage($Button_Graphic1[0], $Button_Icon_dpi, ($Width-$Icon_W)/2, ($Height-$Icon_H)/2)
+ 		_GDIPlus_GraphicsDrawImage($Button_Graphic2[0], $Button_Icon_dpi, ($Width-$Icon_W)/2, ($Height-$Icon_H)/2)
+		_GDIPlus_GraphicsDrawImage($Button_Graphic3[0], $Button_Icon_dpi, ($Width-$Icon_W)/2, ($Height-$Icon_H)/2)
+	EndIf
+
+	;Release created objects
+	_GDIPlus_FontDispose($hFont)
+	_GDIPlus_FontFamilyDispose($hFamily)
+	_GDIPlus_StringFormatDispose($hFormat)
+	_GDIPlus_BrushDispose($Brush_BTN_FontColor)
+	_GDIPlus_BrushDispose($Brush_BTN_SecondFontColor)
+	_GDIPlus_PenDispose($Pen_BTN_BarColor)
+	_GDIPlus_PenDispose($Pen_BTN_SecondBarColor)
+	If  $Icon <> "" Then
+		If $HIGHDPI_SUPPORT Then _GDIPlus_BitmapDispose($Button_Icon)
+		_GDIPlus_BitmapDispose($Button_Icon_dpi)
+	EndIf
+
+	;Set graphic and return Bitmap handle
+	$Button_Array[0] = GUICtrlCreatePic("", $Left, $Top, $Width, $Height)
+	$Button_Array[5] = _iGraphicCreateBitmapHandle($Button_Array[0], $Button_Graphic1)
+	$Button_Array[6] = _iGraphicCreateBitmapHandle($Button_Array[0], $Button_Graphic2, False)
+	$Button_Array[7] = _iGraphicCreateBitmapHandle($Button_Array[0], $Button_Graphic3, False)
+
+	;Set GUI Resizing
+	GUICtrlSetResizing($Button_Array[0], 768)
+
+	_cHvr_Register($Button_Array[0], "_iHoverOff", "_iHoverOn", "", "", _iAddHover($Button_Array))
+	Return $Button_Array[0]
+
+EndFunc   ;==>_SCN_CreateButtonBar
 
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _SCN_DisableButton
@@ -1472,7 +1596,6 @@ Func _SCN_EnableButton($mButton)
 		EndIf
 	Next
 EndFunc   ;==>_SCN_EnableButton
-
 
 #EndRegion MetroButtons===========================================================================================
 
@@ -2277,7 +2400,6 @@ Func _SCN_RadioCheck($RadioGroup, $Radio, $NoHoverEffect = False)
 		EndIf
 	Next
 EndFunc   ;==>_SCN_RadioCheck
-#EndRegion MetroRadio===========================================================================================
 
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _SCN_RadioIsChecked
@@ -2301,6 +2423,7 @@ Func _SCN_RadioIsChecked($RadioGroup, $Radio)
 	Next
 	Return False
 EndFunc   ;==>_SCN_RadioIsChecked
+#EndRegion MetroRadio===========================================================================================
 
 
 #Region MetroCheckbox===========================================================================================
@@ -2323,10 +2446,6 @@ EndFunc   ;==>_SCN_RadioIsChecked
 ; Return values .: Handle to the Checkbox
 ; ===============================================================================================================================
 Func _SCN_CreateCheckbox($Text, $Left, $Top, $Width, $Height, $BG_Color = $GUIThemeColor, $Font_Color = $FontThemeColor, $Font = "Segoe UI", $Fontsize = "11", $FontStyle = 0, $cb_style = 1)
-	If $Height < 24 Then
-		If (@Compiled = 0) Then MsgBox(48, "Metro UDF", "The min. height is 24px for metro checkboxes.")
-	EndIf
-
 	;HighDPI Support
 	Local $chDPI = _HighDPICheck()
 	If $HIGHDPI_SUPPORT Then
@@ -2346,7 +2465,7 @@ Func _SCN_CreateCheckbox($Text, $Left, $Top, $Width, $Height, $BG_Color = $GUITh
 	$Checkbox_Array[15] = GetCurrentGUI()
 
 	;Calc Box position etc.
-	Local $chbh = Round(22 * $chDPI)
+	Local $chbh = Round(($Height -4) * $chDPI)
 	Local $TopMargin = ($Height - $chbh) / 2
 	Local $CheckBox_Text_Margin = $chbh + ($TopMargin * 1.3)
 	Local $FrameSize
@@ -2494,10 +2613,6 @@ EndFunc   ;==>_SCN_CreateCheckboxEx
 ; Return values .: Handle to the Checkbox
 ; ===============================================================================================================================
 Func _SCN_CreateCheckboxEx2($Text, $Left, $Top, $Width, $Height, $BG_Color = $GUIThemeColor, $Font_Color = $FontThemeColor, $Font = "Segoe UI", $Fontsize = "11", $FontStyle = 0)
-	If $Height < 24 Then
-		If (@Compiled = 0) Then MsgBox(48, "Metro UDF", "The min. height is 24px for metro checkboxes.")
-	EndIf
-
 	;HighDPI Support
 	Local $chDPI = _HighDPICheck()
 	If $HIGHDPI_SUPPORT Then
@@ -2517,7 +2632,7 @@ Func _SCN_CreateCheckboxEx2($Text, $Left, $Top, $Width, $Height, $BG_Color = $GU
 	$Checkbox_Array[15] = GetCurrentGUI()
 
 	;Calc Box position etc.
-	Local $chbh = Round(24 * $chDPI)
+	Local $chbh = Round(($Height -4) * $chDPI)
 	Local $TopMargin = ($Height - $chbh) / 2
 	Local $CheckBox_Text_Margin = $chbh + ($TopMargin * 1.3)
 	Local $FrameSize = $chbh / 15
@@ -2578,7 +2693,6 @@ Func _SCN_CreateCheckboxEx2($Text, $Left, $Top, $Width, $Height, $BG_Color = $GU
 	Local $apos1 = cAngle($mpX - $Cutpoint, $mpY, 135, $chbh / 2)
 	Local $apos2 = cAngle($mpX, $mpY - $Cutpoint, 225, $chbh / 4.3)
 
-
 	;Add check mark
 	_GDIPlus_GraphicsDrawLine($Checkbox_Graphic2[0], $mpX - $Cutpoint, $mpY, $apos1[0], $apos1[1], $PenX) ;r
 	_GDIPlus_GraphicsDrawLine($Checkbox_Graphic2[0], $mpX, $mpY - $Cutpoint, $apos2[0], $apos2[1], $PenX) ;l
@@ -2589,7 +2703,6 @@ Func _SCN_CreateCheckboxEx2($Text, $Left, $Top, $Width, $Height, $BG_Color = $GU
 	_GDIPlus_GraphicsDrawLine($Checkbox_Graphic1[0], $mpX, $mpY - $Cutpoint, $apos2[0], $apos2[1], $Pen1) ;l
 	_GDIPlus_GraphicsDrawLine($Checkbox_Graphic3[0], $mpX - $Cutpoint, $mpY, $apos1[0], $apos1[1], $Pen2)
 	_GDIPlus_GraphicsDrawLine($Checkbox_Graphic3[0], $mpX, $mpY - $Cutpoint, $apos2[0], $apos2[1], $Pen2)
-
 
 	;Release created objects
 	_GDIPlus_FontDispose($hFont)
@@ -2687,10 +2800,8 @@ Func _SCN_CheckboxSwitch($Checkbox)
 		Return True
 	EndIf
 EndFunc   ;==>_SCN_CheckboxSwitch
-
-
-
 #EndRegion MetroCheckbox===========================================================================================
+
 
 #Region Metro MsgBox===========================================================================================
 ; #FUNCTION# ====================================================================================================================
@@ -2854,7 +2965,7 @@ EndFunc   ;==>_SCN_MsgBox
 #EndRegion Metro MsgBox===========================================================================================
 
 
-#Region Metro InputBox===========================================================================================
+#Region Metro InputBox======= =====================================================================================
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _SCN_InputBox
 ; Description ...: Creates a metro-style Inputbox.
@@ -2922,8 +3033,7 @@ EndFunc   ;==>_SCN_InputBox
 #EndRegion Metro InputBox===========================================================================================
 
 
-
-#Region Metro Progressbar===========================================================================================
+#Region Metro Progressbar==========================================================================================
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _SCN_CreateProgress
 ; Description ...: Creates a simple progressbar.
@@ -3015,6 +3125,327 @@ Func _SCN_SetProgress(ByRef $Progress, $Percent)
 	$Progress[6] = $SetProgress
 EndFunc   ;==>_SCN_SetProgress
 #EndRegion Metro Progressbar===========================================================================================
+
+
+#Region Metro ComboBox=============================================================================================
+; #FUNCTION# ====================================================================================================================
+; Name ..........: _SCN_CreateComboBox
+; Description ...: Creates Windows 10 style ComboBox with a frame around. Hovering changes the combobox color to a lighter or darker color.
+; Syntax ........: _SCN_CreateComboBox($Text, $Left, $Top, $Width, $Height[, $BG_Color = $ButtonBKColor[,
+;                  $Font_Color = $ButtonTextColor[, $Font = "Arial"[, $Fontsize = 12.5[, $FontStyle = 1[,
+;                  $FrameColor = "0x1B1B1B"[, $Darker = False]]]]]]])
+; Parameters ....: $Text            	- Text of the Combobox.
+;                  $Left              	- Left pos.
+;                  $Top                 - Top pos.
+;                  $Width               - Width.
+;                  $Height              - Height.
+;                  $BG_Color       	    - [optional] Combobox background color. Default is $ButtonBKColor.
+;                  $Font_Color       	- [optional] Font colore. Default is $ButtonTextColor.
+;                  $Font            	- [optional] Font. Default is "Arial".
+;                  $Fontsize        	- [optional] Fontsize. Default is 12.5.
+;                  $FontStyle       	- [optional] Fontstyle. Default is 1.
+;                  $FrameColor      	- [optional] Combobox frame color. Default is "0x1B1B1B".
+;				   $Darker				- [optional] Hover effect darker for light combobox. Default is false.
+; Return values .: Handle to the Combobox.
+; Example .......: _SCN_CreateComboBox("ComboBox 1",50,50,120,34)
+; ===============================================================================================================================
+
+Func _SCN_CreateComboBox($Text, $Left, $Top, $Width, $Height, $BG_Color = $ButtonBKColor, $Font_Color = $ButtonTextColor, $Font = "Arial", $Fontsize = 11, $FontStyle = 1, $FrameColor = "0x1B1B1B", $Darker = False)
+	Local $Combo_Array[16]
+
+	Local $ComboDPI = _HighDPICheck()
+	If $HIGHDPI_SUPPORT Then
+		$Left = Round($Left * $gDPI)
+		$Top = Round($Top * $gDPI)
+		$Width = Round($Width * $gDPI)
+		$Height = Round($Height * $gDPI)
+	Else
+		$Fontsize = ($Fontsize / $Font_DPI_Ratio)
+	EndIf
+
+	$Combo_Array[1] = False ; Set hover OFF
+	$Combo_Array[3] = "2" ; Type
+	$Combo_Array[15] = GetCurrentGUI()
+
+	;Calculate Framesize
+	Local $FrameSize = Round(2 * $ComboDPI)
+	If Not (Mod($FrameSize, 2) = 0) Then $FrameSize = $FrameSize - 1
+
+	;Set Colors
+	$BG_Color = "0xFF" & Hex($BG_Color, 6)
+	$Font_Color = "0xFF" & Hex($Font_Color, 6)
+	$FrameColor = "0xFF" & Hex($FrameColor, 6)
+	$ArrowColor = "0xFF" & Hex($FrameColor, 6)
+
+	Local $Brush_COMBO_FontColor = _GDIPlus_BrushCreateSolid($Font_Color)
+	Local $Pen_COMBO_FrameHoverColor = _GDIPlus_PenCreate($FrameColor, $FrameSize)
+	Local $Pen_COMBO_FrameHoverColorDis = _GDIPlus_PenCreate(StringReplace(_AlterBrightness($Font_Color, -30), "0x", "0xFF"), $FrameSize)
+	Local $Brush_COMBO_FontColorDis = _GDIPlus_BrushCreateSolid(StringReplace(_AlterBrightness($Font_Color, -30), "0x", "0xFF"))
+	Local $Pen_COMBO_FrameColor = _GDIPlus_PenCreate($ArrowColor)
+	Local $Pen_COMBO_FrameColorDis = _GDIPlus_PenCreate(StringReplace(_AlterBrightness($ArrowColor, -30), "0x", "0xFF"))
+
+	;Create Combobox graphics
+	Local $Combo_Graphic1 = _iGraphicCreate($Width, $Height, $BG_Color, 0, 5) ;Default
+	If $Darker Then
+		Local $Combo_Graphic2 = _iGraphicCreate($Width, $Height, StringReplace(_AlterBrightness($BG_Color, -10), "0x", "0xFF"), 0, 5) ;Hover
+	Else
+		Local $Combo_Graphic2 = _iGraphicCreate($Width, $Height, StringReplace(_AlterBrightness($BG_Color, 25), "0x", "0xFF"), 0, 5) ;Hover
+	EndIf
+	Local $Combo_Graphic3 = _iGraphicCreate($Width, $Height, $BG_Color, 0, 5) ;Disabled
+
+	;Create font, Set font options
+	Local $hFormat = _GDIPlus_StringFormatCreate(), $hFamily = _GDIPlus_FontFamilyCreate($Font), $hFont = _GDIPlus_FontCreate($hFamily, $Fontsize, $FontStyle)
+	Local $tLayout = _GDIPlus_RectFCreate(0, 0, $Width, $Height)
+	_GDIPlus_StringFormatSetAlign($hFormat, 0)
+	_GDIPlus_StringFormatSetLineAlign($hFormat, 1)
+
+	;Draw combo text
+	_GDIPlus_GraphicsDrawStringEx($Combo_Graphic1[0], " " & $Text, $hFont, $tLayout, $hFormat, $Brush_COMBO_FontColor)
+	_GDIPlus_GraphicsDrawStringEx($Combo_Graphic2[0], " " & $Text, $hFont, $tLayout, $hFormat, $Brush_COMBO_FontColor)
+	_GDIPlus_GraphicsDrawStringEx($Combo_Graphic3[0], " " & $Text, $hFont, $tLayout, $hFormat, $Brush_COMBO_FontColorDis)
+
+	;Add frame
+	_GDIPlus_GraphicsDrawRect($Combo_Graphic1[0], 0, 0, $Width, $Height, $Pen_COMBO_FrameHoverColor)
+	_GDIPlus_GraphicsDrawRect($Combo_Graphic2[0], 0, 0, $Width, $Height, $Pen_COMBO_FrameHoverColor)
+	_GDIPlus_GraphicsDrawRect($Combo_Graphic3[0], 0, 0, $Width, $Height, $Pen_COMBO_FrameHoverColorDis)
+
+	;Define anti-aliasing
+	_GDIPlus_GraphicsSetSmoothingMode($Combo_Graphic1[0], $GDIP_SMOOTHINGMODE_HIGHQUALITY)
+	_GDIPlus_GraphicsSetSmoothingMode($Combo_Graphic2[0], $GDIP_SMOOTHINGMODE_HIGHQUALITY)
+	_GDIPlus_GraphicsSetSmoothingMode($Combo_Graphic3[0], $GDIP_SMOOTHINGMODE_HIGHQUALITY)
+
+	;Draw combo arrow
+	_GDIPlus_GraphicsDrawLine($Combo_Graphic1[0], $Width-20, ($Height/2)-2.5, $Width-15, ($Height/2)+2.5, $Pen_COMBO_FrameColor)
+	_GDIPlus_GraphicsDrawLine($Combo_Graphic1[0], $Width-15, ($Height/2)+2.5, $Width-10, ($Height/2)-2.5, $Pen_COMBO_FrameColor)
+	_GDIPlus_GraphicsDrawLine($Combo_Graphic2[0], $Width-20, ($Height/2)-2.5, $Width-15, ($Height/2)+2.5, $Pen_COMBO_FrameColor)
+	_GDIPlus_GraphicsDrawLine($Combo_Graphic2[0], $Width-15, ($Height/2)+2.5, $Width-10, ($Height/2)-2.5, $Pen_COMBO_FrameColor)
+	_GDIPlus_GraphicsDrawLine($Combo_Graphic3[0], $Width-20, ($Height/2)-2.5, $Width-15, ($Height/2)+2.5, $Pen_COMBO_FrameColorDis)
+	_GDIPlus_GraphicsDrawLine($Combo_Graphic3[0], $Width-15, ($Height/2)+2.5, $Width-10, ($Height/2)-2.5, $Pen_COMBO_FrameColorDis)
+
+	;Release created objects
+	_GDIPlus_FontDispose($hFont)
+	_GDIPlus_FontFamilyDispose($hFamily)
+	_GDIPlus_StringFormatDispose($hFormat)
+	_GDIPlus_BrushDispose($Brush_COMBO_FontColor)
+	_GDIPlus_BrushDispose($Brush_COMBO_FontColorDis)
+	_GDIPlus_PenDispose($Pen_COMBO_FrameHoverColor)
+	_GDIPlus_PenDispose($Pen_COMBO_FrameHoverColorDis)
+
+	;Set graphic and return Bitmap handle
+	$Combo_Array[0] = GUICtrlCreatePic("", $Left, $Top, $Width, $Height)
+	$Combo_Array[5] = _iGraphicCreateBitmapHandle($Combo_Array[0], $Combo_Graphic1)
+	$Combo_Array[6] = _iGraphicCreateBitmapHandle($Combo_Array[0], $Combo_Graphic2, False)
+	$Combo_Array[7] = _iGraphicCreateBitmapHandle($Combo_Array[0], $Combo_Graphic3, False)
+
+	;Set GUI Resizing
+	GUICtrlSetResizing($Combo_Array[0], 768)
+
+	_cHvr_Register($Combo_Array[0], "_iHoverOff", "_iHoverOn", "", "", _iAddHover($Combo_Array))
+	Return $Combo_Array[0]
+
+EndFunc   ;==>_SCN_CreateComboBox
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: _SCN_ComboBoxMenu
+; Description ...: Creates Windows 10 style ComboBox Menu with a frame around.
+; Syntax ........: _SCN_ComboBoxMenu($Item, $WinID, $CtrlID[, $Height = 80])
+; Parameters ....: $Item            	- List of items (separate by |)
+;                  $WinID              	- ID of the parent GUI.
+;                  $CtrlID              - ID of the control source.
+;                  $Height              - Height of the menu. Default is 80.
+; Return values .: an array with the following format:
+;					[0] - Index of the selection
+;					[1] - Text of the selection
+; Example .......: _SCN_ComboBoxMenu("Item1|Item 2|Item 3",$GUI_Parent,$Combo1)
+; ===============================================================================================================================
+
+Func _SCN_ComboBoxMenu($ItemArray, $WinID, $CtrlID)
+	Global $Menu_Close = False, $Combo_Result[2], $WinNotActive = 1
+	Dim $BP_Array[Ubound($ItemArray)]
+	
+	$Combo_Result[0] = -1
+	$Title = WinGetTitle($WinID)
+	$Win_Pos = WinGetPos($Title)
+	$Combo_Pos = ControlGetPos($Title, "", $CtrlID)
+	$Height = 20*UBound($ItemArray)+1
+	$Width = $Combo_Pos[2]
+
+	; Permet au menu de suivre la fenêtre (Pourquoi ?)
+	Local $GUI_Temp = GUICreate("", 10, 10, 10, 10, $WS_POPUP, $WS_EX_MDICHILD, $WinID)
+	GUIDelete($GUI_Temp)
+	
+	;HighDPI Support
+	If $HIGHDPI_SUPPORT Then $Width = Round($Combo_Pos[2]/$gDPI * $gDPI)
+	
+	; Création de la GUI
+	DllCall("uxtheme.dll", "none", "SetThemeAppProperties", "int", 0) ;Adds compatibility for Windows 7 Basic theme
+	Global $GUI_ComboMenu = GUICreate("ComboBox_Menu", $Width, $Height, $Win_Pos[0]+$Combo_Pos[0], $Win_Pos[1]+$Combo_Pos[1]+$Combo_Pos[3], -1, -1, $WinID)
+	$gID = _SCN_SetGUIOption($GUI_ComboMenu, True, True, $Width, $Height)
+	DllCall("uxtheme.dll", "none", "SetThemeAppProperties", "int", BitOR(1, 2, 4))
+	_WinAPI_SetWindowSubclass($GUI_ComboMenu, $m_pDll, 1010, $gID)
+	WinMove($GUI_ComboMenu, "", Default, Default, $Width, $Height)
+	GUISetBkColor($GUIThemeColor)
+ 	_CreateBorder($GUI_ComboMenu,  $Width, $Height, $GUIBorderColor)
+	
+	For $i = 0 To UBound($ItemArray)-1
+		$BP_Array[$i] = _Internal_CreateComboButton(" " & $ItemArray[$i], 1, 20*$i, $Width-2, 20, 0xFFFFFF, $FontThemeColor, "Segoe UI", 8.5, 0, 0)
+	Next
+		
+	GUIRegisterMsg($WM_ACTIVATE, "_Combo_LostFocus")
+	
+	; Affichage de la GUI
+	GUISetState(@SW_SHOW, $GUI_ComboMenu)
+	
+	While 1
+		Local $imsg = GUIGetMsg()
+		For $i = 0 To UBound($BP_Array)-1
+			If $imsg = $BP_Array[$i] Then
+				_SCN_GUIDelete($GUI_ComboMenu)
+				Return $i
+			EndIf
+		Next
+		If $Menu_Close Then
+			$Menu_Close = False
+			_SCN_GUIDelete($GUI_ComboMenu)
+			Return -1
+		EndIf
+	Wend
+EndFunc ;==>_SCN_ComboBoxMenu
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: _Combo_LostFocus
+; Description ...:
+; Syntax ........: _Combo_LostFocus($hWnd, $iMsg, $wParam, $lParam)
+; Return values .: None
+; Example .......: No
+; ===============================================================================================================================
+
+Func _Combo_LostFocus($hWnd, $iMsg, $wParam, $lParam)
+	If $hWnd = $GUI_ComboMenu And $wParam = "0x00000000" And $Combo_Result[0] = "-1" Then $Menu_Close = True
+EndFunc
+
+Func _Internal_CreateComboButton($Text, $Left, $Top, $Width, $Height, $BG_Color = $GUIThemeColor, $Font_Color = $FontThemeColor, $Font = "Segoe UI", $Fontsize = 8.5, $FontStyle = 0, $Align = 0)
+	Local $Button_Array[16]
+
+	Local $btnDPI = 1
+	If $HIGHDPI_SUPPORT Then
+		$btnDPI = $gDPI
+	Else
+		$Fontsize = ($Fontsize / $Font_DPI_Ratio)
+	EndIf
+
+	$Button_Array[1] = False ; Set hover OFF
+	$Button_Array[3] = "2" ; Type
+	$Button_Array[15] = GetCurrentGUI()
+
+	;Set Colors
+	$BG_Color = StringReplace($BG_Color, "0x", "0xFF")
+	$Font_Color = StringReplace($Font_Color, "0x", "0xFF")
+	Local $Brush_BTN_FontColor = _GDIPlus_BrushCreateSolid($Font_Color)
+
+	If StringInStr($GUI_Theme_Name, "Light") Then
+		Local $BG_ColorD = StringReplace($GUIThemeColor, "0x", "0xFF")
+		$BG_Color = StringReplace(_AlterBrightness($GUIThemeColor, -25), "0x", "0xFF")
+	Else
+		Local $BG_ColorD = StringReplace($GUIThemeColor, "0x", "0xFF")
+		$BG_Color = StringReplace(_AlterBrightness($GUIThemeColor, +25), "0x", "0xFF")
+	EndIf
+
+	;Create Button graphics
+	Local $Button_Graphic1 = _iGraphicCreate($Width, $Height, $BG_ColorD, 0, 5) ;Default
+	Local $Button_Graphic2 = _iGraphicCreate($Width, $Height, $BG_Color, 0, 5) ;Hover
+
+	;Create font, Set font options
+	Local $hFormat = _GDIPlus_StringFormatCreate(), $hFamily = _GDIPlus_FontFamilyCreate($Font), $hFont = _GDIPlus_FontCreate($hFamily, $Fontsize, $FontStyle)
+	Local $tLayout = _GDIPlus_RectFCreate(0, 0, $Width, $Height)
+	_GDIPlus_StringFormatSetAlign($hFormat, $Align)
+	_GDIPlus_StringFormatSetLineAlign($hFormat, 1)
+
+	;Draw button text
+	_GDIPlus_GraphicsDrawStringEx($Button_Graphic1[0], $Text, $hFont, $tLayout, $hFormat, $Brush_BTN_FontColor)
+	_GDIPlus_GraphicsDrawStringEx($Button_Graphic2[0], $Text, $hFont, $tLayout, $hFormat, $Brush_BTN_FontColor)
+
+	;Release created objects
+	_GDIPlus_FontDispose($hFont)
+	_GDIPlus_FontFamilyDispose($hFamily)
+	_GDIPlus_StringFormatDispose($hFormat)
+	_GDIPlus_BrushDispose($Brush_BTN_FontColor)
+
+	;Set graphic and return Bitmap handle
+	$Button_Array[0] = GUICtrlCreatePic("", $Left, $Top, $Width, $Height)
+	$Button_Array[5] = _iGraphicCreateBitmapHandle($Button_Array[0], $Button_Graphic1)
+	$Button_Array[6] = _iGraphicCreateBitmapHandle($Button_Array[0], $Button_Graphic2, False)
+
+	;For GUI Resizing
+	GUICtrlSetResizing($Button_Array[0], 802)
+
+	_cHvr_Register($Button_Array[0], "_iHoverOff", "_iHoverOn", "", "", _iAddHover($Button_Array))
+	Return $Button_Array[0]
+EndFunc   ;==>_Internal_CreateMButton
+#EndRegion Metro ComboBox===========================================================================================
+
+
+#Region Metro Icon =================================================================================================
+; #FUNCTION# ====================================================================================================================
+; Name ..........: _SCN_CreateIcon
+; Description ...: Create an icon.
+; Syntax ........: _SCN_CreateIcon($Icon, $Left, $Top)
+; Parameters ....: $Icon                - Path of the icon
+;                  $Left                - Position X
+;                  $Top                 - Position Y
+; Return values .: Handle to the created icon
+; Example .......: _SCN_CreateIcon("Example.ico", 20, 50)
+; ===============================================================================================================================
+
+Func _SCN_CreateIcon($Icon, $Left, $Top)
+	Local $Button_Array[16]
+
+	Local $btnDPI = _HighDPICheck()
+	If $HIGHDPI_SUPPORT Then
+		$Left = Round($Left * $gDPI)
+		$Top = Round($Top * $gDPI)
+	EndIf
+
+	$Button_Array[1] = True ; Set hover OFF
+	$Button_Array[3] = "8" ; Type
+	$Button_Array[15] = GetCurrentGUI()
+
+	;Set Colors
+	$BG_Color = "0x00" & Hex($GUIThemeColor, 6)
+	
+	;Create Icon Bitmap
+	If $HIGHDPI_SUPPORT Then
+		Local $BMP_Icon = _GDIPlus_BitmapCreateFromFile($Icon)
+		Local $BMP_Icon_dpi = _GDIPlus_ImageScale($BMP_Icon, $gdpi, $gdpi, 6)
+	Else
+		Local $BMP_Icon_dpi = _GDIPlus_BitmapCreateFromFile($Icon)
+	EndIf
+	Local $Width = _GDIPlus_ImageGetWidth($BMP_Icon_dpi)
+	Local $Height = _GDIPlus_ImageGetHeight($BMP_Icon_dpi)
+
+	;Create Icon graphics
+	Local $Icon_Graphic1 = _iGraphicCreate($Width, $Height, $BG_Color, 0, 5) ;Default
+	
+	;Define anti-aliasing
+	_GDIPlus_GraphicsSetSmoothingMode($Icon_Graphic1[0], $GDIP_SMOOTHINGMODE_HIGHQUALITY)
+	
+	;Add Icon
+	_GDIPlus_GraphicsDrawImage($Icon_Graphic1[0], $BMP_Icon_dpi, 0, 0)
+
+	;Release created objects
+	If $HIGHDPI_SUPPORT Then _GDIPlus_BitmapDispose($BMP_Icon)
+	_GDIPlus_BitmapDispose($BMP_Icon_dpi)
+
+	;Set graphic and return Bitmap handle
+	$Button_Array[0] = GUICtrlCreatePic("", $Left, $Top, $Width, $Height)
+	$Button_Array[5] = _iGraphicCreateBitmapHandle($Button_Array[0], $Icon_Graphic1)
+
+	;Set GUI Resizing
+	GUICtrlSetResizing($Button_Array[0], 768)
+
+	Return $Button_Array[0]
+EndFunc
+#EndRegion Metro Icon==================================================================================================
 
 
 
@@ -3608,63 +4039,3 @@ EndFunc   ;==>_iGetGUIID
 Func _iFullscreenToggleBtn($idCtrl, $hWnd)
 	If $ControlBtnsAutoMode Then _SCN_FullscreenToggle($hWnd)
 EndFunc   ;==>_iFullscreenToggleBtn
-
-; #FUNCTION# ====================================================================================================================
-; Name ..........: _SCN_CreateIcon
-; Description ...: Create an icon.
-; Syntax ........: _SCN_CreateIcon($Icon, $Left, $Top)
-; Parameters ....: $Icon                - Path of the icon
-;                  $Left                - Position X
-;                  $Top                 - Position Y
-; Return values .: Handle to the created icon
-; Example .......: _SCN_CreateIcon("Example.ico", 20, 50)
-; ===============================================================================================================================
-
-Func _SCN_CreateIcon($Icon, $Left, $Top)
-	Local $Button_Array[16]
-
-	Local $btnDPI = _HighDPICheck()
-	If $HIGHDPI_SUPPORT Then
-		$Left = Round($Left * $gDPI)
-		$Top = Round($Top * $gDPI)
-	EndIf
-
-	$Button_Array[1] = False ; Set hover OFF
-	$Button_Array[3] = "2" ; Type
-	$Button_Array[15] = GetCurrentGUI()
-
-	;Set Colors
-	$BG_Color = "0x00" & Hex($GUIThemeColor, 6)
-	
-	;Create Icon Bitmap
-	If $HIGHDPI_SUPPORT Then
-		Local $BMP_Icon = _GDIPlus_BitmapCreateFromFile($Icon)
-		Local $BMP_Icon_dpi = _GDIPlus_ImageScale($BMP_Icon, $gdpi, $gdpi, 6)
-	Else
-		Local $BMP_Icon_dpi = _GDIPlus_BitmapCreateFromFile($Icon)
-	EndIf
-	Local $Width = _GDIPlus_ImageGetWidth($BMP_Icon_dpi)
-	Local $Height = _GDIPlus_ImageGetHeight($BMP_Icon_dpi)
-
-	;Create Button graphics
-	Local $Icon_Graphic1 = _iGraphicCreate($Width, $Height, $BG_Color, 0, 5) ;Default
-	
-	;Define anti-aliasing
-	_GDIPlus_GraphicsSetSmoothingMode($Icon_Graphic1[0], $GDIP_SMOOTHINGMODE_HIGHQUALITY)
-	
-	;Add Icon
-	_GDIPlus_GraphicsDrawImage($Icon_Graphic1[0], $BMP_Icon_dpi, 0, 0)
-
-	;Release created objects
-	If $HIGHDPI_SUPPORT Then _GDIPlus_BitmapDispose($BMP_Icon)
-	_GDIPlus_BitmapDispose($BMP_Icon_dpi)
-
-	;Set graphic and return Bitmap handle
-	$Button_Array[0] = GUICtrlCreatePic("", $Left, $Top, $Width, $Height)
-	$Button_Array[5] = _iGraphicCreateBitmapHandle($Button_Array[0], $Icon_Graphic1)
-
-	;Set GUI Resizing
-	GUICtrlSetResizing($Button_Array[0], 768)
-
-	Return $Button_Array[0]
-EndFunc

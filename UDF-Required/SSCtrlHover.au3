@@ -59,10 +59,11 @@ Func _cHvr_iProc($hWnd, $uMsg, $wParam, $lParam, $cIndex)
 			Return False
 		Case 0x0203;Doubleclick
 			_cHvr_cDblClk($_cHvr_aData[$cIndex], $hWnd, $uMsg, $wParam, $lParam)
-			   Case 0x0204;Rightclick
+		Case 0x0204;Rightclick
 			  _cHvr_cRightClk($_cHvr_aData[$cIndex], $hWnd, $uMsg, $wParam, $lParam)
 		Case 0x02A3;Hover leave
-			_cHvr_cLeave($_cHvr_aData[$cIndex], $hWnd, $uMsg, $wParam, $lParam)
+		; ICI il faut verifier si buttonbar et si active : si bouttonbar et désactive alors pas de hoveroff........................
+			If GUICtrlGetState(_WinAPI_GetDlgCtrlID($hWnd)) <> 144 Then _cHvr_cLeave($_cHvr_aData[$cIndex], $hWnd, $uMsg, $wParam, $lParam)
 		Case 0x0082;Deleted
 			_cHvr_UnRegisterInternal($cIndex, $hWnd)
 	EndSwitch
