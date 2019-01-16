@@ -1476,7 +1476,7 @@ Func _SCN_CreateButtonBar($Text, $Left, $Top, $Width, $Height, $BG_Color = $GUIT
 	EndIf
 
 	$Button_Array[1] = False ; Set hover OFF
-	$Button_Array[3] = "5" ; Type
+	$Button_Array[3] = "11" ; Type
 	$Button_Array[15] = GetCurrentGUI()
 
 	;Calculate Barsize
@@ -3743,6 +3743,12 @@ Func _iHoverOff($idCtrl, $vData)
 				_WinAPI_DeleteObject(GUICtrlSendMsg($iHoverReg[$vData][0], 0x0172, 0, $iHoverReg[$vData][12])) ;Checked image
 			Else
 				_WinAPI_DeleteObject(GUICtrlSendMsg($iHoverReg[$vData][0], 0x0172, 0, $iHoverReg[$vData][5])) ;Default image
+			EndIf
+		Case 11 ;Bar
+			If WinActive($iHoverReg[$vData][15]) And GUICtrlGetState($iHoverReg[$vData][0]) <> 144 Then
+				_WinAPI_DeleteObject(GUICtrlSendMsg($idCtrl, 0x0172, 0, $iHoverReg[$vData][5])) ;Button default image
+			Else
+				_WinAPI_DeleteObject(GUICtrlSendMsg($idCtrl, 0x0172, 0, $iHoverReg[$vData][7])) ;Inactive state
 			EndIf
 		Case Else
 			_WinAPI_DeleteObject(GUICtrlSendMsg($idCtrl, 0x0172, 0, $iHoverReg[$vData][5])) ;Button default image
