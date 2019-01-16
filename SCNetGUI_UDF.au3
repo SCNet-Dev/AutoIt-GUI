@@ -10,6 +10,7 @@
 #include "UDF-Required\StringSize.au3"
 #include "UDF-Required\SSCtrlHover.au3"
 #include "UDF-Required\_GUIDisable.au3"
+#include "UDF-Required\_FontAwesome.au3"
 #include <GDIPlus.au3>
 #include <WindowsConstants.au3>
 #include <WinAPISys.au3>
