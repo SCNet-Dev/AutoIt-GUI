@@ -3447,6 +3447,56 @@ Func _SCN_CreateIcon($Icon, $Left, $Top)
 EndFunc
 #EndRegion Icon
 
+#Region Input
+; #FUNCTION# ====================================================================================================================
+; Name ..........: _SCN_CreateInput
+; Description ...: Creates Windows 10 style input.
+; Syntax ........: _SCN_CreateInput($Text, $Left, $Top, $Width, $Height [, $Style = -1 [, $Exstyle = -1 [,
+;                  $BG_Color = $GUIThemeColor [,$Font_Color = $FontThemeColor [, $Font = "Arial" [, $Fontsize = 10 [, $Fontweight = 400 [,
+;                  $Fontstyle = 0]]]]]]]])
+; Parameters ....: $Text            	- Text of the input.
+;                  $Left              	- Left pos.
+;                  $Top                 - Top pos.
+;                  $Width               - Width.
+;                  $Height              - Height.
+;                  $Style       	    - [optional] Style of the input (see GUICtrlCreateInput). Default is -1.
+;                  $Exstyle     	  	- [optional] ExStyle of the input (see GUICtrlCreateInput). Default is -1.
+;                  $BG_Color       	    - [optional] Input background color. Default is $GUIThemeColor.
+;                  $Font_Color       	- [optional] Font color. Default is $FontThemeColor.
+;                  $Font		       	- [optional] Font. Default is "Arial".
+;                  $Fontsize     	 	- [optional] Font size. Default is 10.
+;				   $Fontweight			- [optional] Font weight. Default is 400.
+;				   $Fontstyle			- [optional] Font style (see GUICtrlSetFont). Default is 0.
+; Return values .: Handle to the input.
+; Example .......: _SCN_CreateInput("",50,50,120,34)
+; ===============================================================================================================================
+
+Func _SCN_CreateInput($Text, $Left, $Top, $Width, $Height, $Style = -1, $Exstyle = -1, $BG_Color = $GUIThemeColor, $Font_Color = $FontThemeColor, $Font = "Arial", $Fontsize = 10, $Fontweight =  400,  $Fontstyle = 0)
+	Local $Input_Array[16]
+
+	If $HIGHDPI_SUPPORT Then
+		$Left = Round($Left * $gDPI)
+		$Top = Round($Top * $gDPI)
+		$Width = Round($Width * $gDPI)
+		$Height = Round($Height * $gDPI)
+	Else
+		$Fontsize = ($Fontsize / $Font_DPI_Ratio)
+	EndIf
+	
+	$Input_Array[1] = False ; Set hover OFF
+	$Input_Array[3] = "12" ; Type
+	$Input_Array[15] = GetCurrentGUI()
+		
+    $Input_Array[0] = GUICtrlCreateInput($Text, $Left, $Top, $Width, $Height, $Style, $Exstyle)
+
+    GUICtrlSetFont($Input_Array[0], $Fontsize, $Fontweight, $Fontstyle, $Font)
+    GUICtrlSetColor($Input_Array[0], $Font_Color)
+    GUICtrlSetBkColor($Input_Array[0], $BG_Color)
+
+	_cHvr_Register($Input_Array[0], "_iHoverOff", "_iHoverOn", "", "", _iAddHover($Input_Array))
+    Return $Input_Array[0]
+EndFunc ;_SCNCreateInput
+#EndRegion Input
 
 
 ; #FUNCTION# ====================================================================================================================
