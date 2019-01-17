@@ -40,7 +40,7 @@ If Opt("GUIOnEventMode", 0) Then
 	$mOnEventMode = True
 EndIf
 
-#Region Metro Functions Overview
+#Region Functions Overview
 ;========================================MAIN GUI==================================================
 ;_SCN_CreateGUI 			  - Creates a borderless Metro-Style GUI
 ;_SetTheme					  - Sets the GUI color scheme from the included MetroThemes.au3
@@ -99,10 +99,9 @@ EndIf
 ;==================================================================================================
 ;_SCN_CreateIcon - Create an icon / image
 
-#EndRegion Metro Functions Overview
+#EndRegion Functions Overview
 
-
-#Region SCNetGUI===========================================================================================
+#Region GUI
 
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _SCN_CreateGUI
@@ -1101,11 +1100,11 @@ Func _iCreateControlButtons($ButtonsToCreate_Array, $GUI_BG_Color = $GUIThemeCol
 	Return $Control_Buttons
 EndFunc   ;==>_iCreateControlButtons
 
-#EndRegion SCNetGUI===========================================================================================
+#EndRegion GUI
 
 
 
-#Region MetroButtons===========================================================================================
+#Region Buttons
 ; ===============================================================================================================================
 ; Name ..........: _SCN_CreateButton
 ; Description ...: Creates metro style buttons. Hovering creates a frame around the buttons.
@@ -1598,9 +1597,9 @@ Func _SCN_EnableButton($mButton)
 	Next
 EndFunc   ;==>_SCN_EnableButton
 
-#EndRegion MetroButtons===========================================================================================
+#EndRegion Buttons
 
-#Region Metro Toggles===========================================================================================
+#Region Toggles
 
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _SCN_CreateToggle(NEW WIN10 Style)
@@ -2223,10 +2222,10 @@ Func _SCN_ToggleCheck($Toggle, $NoAnimation = False)
 		EndIf
 	Next
 EndFunc   ;==>_SCN_ToggleCheck
-#EndRegion Metro Toggles===========================================================================================
+#EndRegion
 
 
-#Region MetroRadio===========================================================================================
+#Region Radio
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _SCN_CreateRadio
 ; Description ...: Creates a metro style radio.
@@ -2424,10 +2423,10 @@ Func _SCN_RadioIsChecked($RadioGroup, $Radio)
 	Next
 	Return False
 EndFunc   ;==>_SCN_RadioIsChecked
-#EndRegion MetroRadio===========================================================================================
+#EndRegion Radio
 
 
-#Region MetroCheckbox===========================================================================================
+#Region Checkbox
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _SCN_CreateCheckbox
 ; Description ...: Creates a metro style checkbox
@@ -2801,10 +2800,10 @@ Func _SCN_CheckboxSwitch($Checkbox)
 		Return True
 	EndIf
 EndFunc   ;==>_SCN_CheckboxSwitch
-#EndRegion MetroCheckbox===========================================================================================
+#EndRegion Checkbox
 
 
-#Region Metro MsgBox===========================================================================================
+#Region MsgBox
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _SCN_MsgBox
 ; Description ...: Creates a metro style MsgBox
@@ -2963,10 +2962,10 @@ Func _SCN_MsgBox($Flag, $Title, $Text, $mWidth = 600, $Fontsize = 11, $ParentGUI
 EndFunc   ;==>_SCN_MsgBox
 
 
-#EndRegion Metro MsgBox===========================================================================================
+#EndRegion MsgBox
 
 
-#Region Metro InputBox======= =====================================================================================
+#Region InputBox
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _SCN_InputBox
 ; Description ...: Creates a metro-style Inputbox.
@@ -3031,10 +3030,10 @@ Func _SCN_InputBox($Promt, $Font_Size = 11, $DefaultText = "", $PW = False, $Ena
 	WEnd
 EndFunc   ;==>_SCN_InputBox
 
-#EndRegion Metro InputBox===========================================================================================
+#EndRegion InputBox
 
 
-#Region Metro Progressbar==========================================================================================
+#Region Progressbar
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _SCN_CreateProgress
 ; Description ...: Creates a simple progressbar.
@@ -3125,10 +3124,10 @@ Func _SCN_SetProgress(ByRef $Progress, $Percent)
 
 	$Progress[6] = $SetProgress
 EndFunc   ;==>_SCN_SetProgress
-#EndRegion Metro Progressbar===========================================================================================
+#EndRegion Progressbar
 
 
-#Region Metro ComboBox=============================================================================================
+#Region ComboBox
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _SCN_CreateComboBox
 ; Description ...: Creates Windows 10 style ComboBox with a frame around. Hovering changes the combobox color to a lighter or darker color.
@@ -3383,10 +3382,10 @@ Func _Internal_CreateComboButton($Text, $Left, $Top, $Width, $Height, $BG_Color 
 	_cHvr_Register($Button_Array[0], "_iHoverOff", "_iHoverOn", "", "", _iAddHover($Button_Array))
 	Return $Button_Array[0]
 EndFunc   ;==>_Internal_CreateMButton
-#EndRegion Metro ComboBox===========================================================================================
+#EndRegion ComboBox
 
 
-#Region Metro Icon =================================================================================================
+#Region Icon
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _SCN_CreateIcon
 ; Description ...: Create an icon.
@@ -3446,7 +3445,7 @@ Func _SCN_CreateIcon($Icon, $Left, $Top)
 
 	Return $Button_Array[0]
 EndFunc
-#EndRegion Metro Icon==================================================================================================
+#EndRegion Icon
 
 
 
@@ -3502,7 +3501,7 @@ Func _SCN_AddVSeperator($Left, $Top, $Height, $Size, $Color = $GUIBorderColor)
 EndFunc   ;==>_SCN_AddVSeperator
 
 
-
+#Region HoverEffects
 Func _iAddHover($Button_ADD)
 	;Try to get an unused index from the hover reg array
 	Local $HRS
@@ -3522,9 +3521,10 @@ Func _iAddHover($Button_ADD)
 	Return $HRS
 EndFunc   ;==>_iAddHover
 
-#EndRegion HoverEffects===========================================================================================
+#EndRegion HoverEffects
 
-#Region Required_Funcs===========================================================================================
+
+#Region Required_Funcs
 Func _iGraphicCreate($hWidth, $hHeight, $BackgroundColor = 0, $Smoothingmode = 4, $TextCleartype = 0)
 	Local $Picture_Array[2]
 	$Picture_Array[1] = _GDIPlus_BitmapCreateFromScan0($hWidth, $hHeight, $GDIP_PXF32ARGB)
@@ -3699,7 +3699,7 @@ Func _GDIPlus_GraphicsGetDPIRatio($iDPIDef = 96)
 	_GDIPlus_Shutdown()
 	Return $iDPI / $iDPIDef
 EndFunc   ;==>_GDIPlus_GraphicsGetDPIRatio
-#EndRegion Required_Funcs===========================================================================================
+#EndRegion Required_Funcs
 
 
 
@@ -4045,4 +4045,4 @@ EndFunc   ;==>_iGetGUIID
 
 Func _iFullscreenToggleBtn($idCtrl, $hWnd)
 	If $ControlBtnsAutoMode Then _SCN_FullscreenToggle($hWnd)
-EndFunc   ;==>_iFullscreenToggleBtn
+EndFunc   ;==>_iFullscreenToggleBtn
