@@ -3039,6 +3039,56 @@ EndFunc   ;==>_SCN_InputBox
 #EndRegion InputBox
 
 
+#Region Label
+; #FUNCTION# ====================================================================================================================
+; Name ..........: _SCN_CreateLabel
+; Description ...: Creates Windows 10 style label.
+; Syntax ........: _SCN_CreateLabel($Text, $Left, $Top, $Width, $Height [, $Style = -1 [, $Exstyle = -1 [,
+;                  $BG_Color = $GUIThemeColor [,$Font_Color = $FontThemeColor [, $Font = "Arial" [, $Fontsize = 10 [, $Fontweight = 400 [,
+;                  $Fontstyle = 0]]]]]]]])
+; Parameters ....: $Text            	- Text of the input.
+;                  $Left              	- Left pos.
+;                  $Top                 - Top pos.
+;                  $Width               - Width.
+;                  $Height              - Height.
+;                  $Style       	    - [optional] Style of the input (see GUICtrlCreateInput). Default is -1.
+;                  $Exstyle     	  	- [optional] ExStyle of the input (see GUICtrlCreateInput). Default is -1.
+;                  $BG_Color       	    - [optional] Input background color. Default is $GUIThemeColor.
+;                  $Font_Color       	- [optional] Font color. Default is $FontThemeColor.
+;                  $Font		       	- [optional] Font. Default is "Arial".
+;                  $Fontsize     	 	- [optional] Font size. Default is 10.
+;				   $Fontweight			- [optional] Font weight. Default is 400.
+;				   $Fontstyle			- [optional] Font style (see GUICtrlSetFont). Default is 0.
+; Return values .: Handle to the label.
+; Example .......: _SCN_CreateLabel("Text",50,50,120,34)
+; ===============================================================================================================================
+
+Func _SCN_CreateLabel($Text, $Left, $Top, $Width, $Height, $Style = -1, $Exstyle = -1, $BG_Color = $GUIThemeColor, $Font_Color = $FontThemeColor, $Font = "Segoe UI", $Fontsize = 10, $Fontweight =  500,  $Fontstyle = 0)
+	Local $Label_Array[16]
+
+	If $HIGHDPI_SUPPORT Then
+		$Left = Round($Left * $gDPI)
+		$Top = Round($Top * $gDPI)
+		$Width = Round($Width * $gDPI)
+		$Height = Round($Height * $gDPI)
+	Else
+		$Fontsize = ($Fontsize / $Font_DPI_Ratio)
+	EndIf
+	
+	$Label_Array[1] = False ; Set hover OFF
+	$Label_Array[3] = "13" ; Type
+	$Label_Array[15] = GetCurrentGUI()
+	
+	$Label_Array[0] = GUICtrlCreateLabel($Text, $Left, $Top, $Width, $Height, $Style, $Exstyle)
+    GUICtrlSetFont($Label_Array[0], $Fontsize, $Fontweight, $Fontstyle, $Font)
+    GUICtrlSetColor($Label_Array[0], $Font_Color)
+    GUICtrlSetBkColor($Label_Array[0], $BG_Color)
+	
+    Return $Label_Array[0]
+EndFunc		;==>_SCN_CreateLabel
+#EndRegion label
+
+
 #Region Progressbar
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _SCN_CreateProgress
