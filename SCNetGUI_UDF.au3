@@ -84,6 +84,12 @@ EndIf
 ;_SCN_CheckboxUncheck - Unchecks a checkbox.
 ;_SCN_CheckboxSwitch - Toggles between checked/unchecked state and then returns the current state.  -> Should only be used to handle user clicks
 
+;=============================================Input================================================
+;_SCN_CreateInput - Creates Windows 10 style input.
+
+;=============================================Label================================================
+;_SCN_CreateLabel - Creates Windows 10 style label.
+
 ;=============================================MsgBox===============================================
 ;_SCN_MsgBox - Creates a MsgBox with a OK button and displays the text. _GUIDisable($GUI, 0, 30) should be used before, so the MsgBox is better visible and afterwards _GUIDisable($GUI).
 
@@ -4095,4 +4101,4 @@ EndFunc   ;==>_iGetGUIID
 
 Func _iFullscreenToggleBtn($idCtrl, $hWnd)
 	If $ControlBtnsAutoMode Then _SCN_FullscreenToggle($hWnd)
-EndFunc   ;==>_iFullscreenToggleBtn
+EndFunc		;==>_iFullscreenToggleBtn
