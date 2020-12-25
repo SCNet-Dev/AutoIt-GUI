@@ -1,4 +1,4 @@
-; #UDF# =======================================================================================================================
+; #UDF# =========================================================================================================================
 ; Name ..........: SCNetGUI UDF (based on MetroGUI UDF by BB_19)
 ; Description ...: Create borderless GUIs with modern buttons, checkboxes, toggles, radios MsgBoxes and progressbars.
 ; Version .......: v5.1.0.0
@@ -126,6 +126,11 @@ EndIf
 Func _SCN_CreateGUI($Title, $Width, $Height, $Left = -1, $Top = -1, $AllowResize = False, $ParentGUI = "")
 	Local $GUI_Return
 
+	If $Left = Default Then $Left = -1 
+	If $Top = Default Then $Top = -1 
+	If $AllowResize = Default Then $AllowResize = False 
+	If $ParentGUI = Default Then $ParentGUI = "" 
+
 	;HighDPI Support
 	If $HIGHDPI_SUPPORT Then
 		$Width = Round($Width * $gDPI)
@@ -180,6 +185,12 @@ EndFunc   ;==>_SCN_CreateGUI
 ; ===============================================================================================================================
 Func _SCN_SetGUIOption($mGUI, $AllowDragMove = False, $AllowResize = False, $Win_MinWidth = "", $Win_MinHeight = "")
 	Local $iGui_Count
+	
+	If $AllowDragMove = Default Then $AllowDragMove = False 
+	If $AllowResize = Default Then $AllowResize = False 
+	If $Win_MinWidth = Default Then $Win_MinWidth = "" 
+	If $Win_MinHeight = Default Then $Win_MinHeight = "" 
+	
 	;Check if Gui is already registered
 	For $iGUIs = 0 To UBound($iGUI_LIST) - 1 Step +1
 		If $iGUI_LIST[$iGUIs][0] = $mGUI Then
@@ -316,6 +327,16 @@ EndFunc   ;==>_iControlDelete
 ; ===============================================================================================================================
 Func _SCN_AddControlButtons($CloseBtn = True, $MaximizeBtn = True, $MinimizeBtn = True, $FullScreenBtn = False, $MenuBtn = False, $GUI_BG_Color = $GUIThemeColor, $GUI_Font_Color = $FontThemeColor, $tMargin = 2)
 	Local $ButtonsToCreate_Array[5]
+	
+	If $CloseBtn = Default Then  $CloseBtn = True
+	If $MaximizeBtn = Default Then  $MaximizeBtn = True
+	If $MinimizeBtn = Default Then  $MinimizeBtn = True
+	If $FullScreenBtn = Default Then  $FullScreenBtn = False
+	If $MenuBtn = Default Then  $MenuBtn = False
+	If $GUI_BG_Color = Default Then  $GUI_BG_Color = $GUIThemeColor
+	If $GUI_Font_Color = Default Then  $GUI_Font_Color = $FontThemeColor
+	If $tMargin = Default Then  $tMargin = 2
+	
 	$ButtonsToCreate_Array[0] = $CloseBtn
 	$ButtonsToCreate_Array[1] = $MaximizeBtn
 	$ButtonsToCreate_Array[2] = $MinimizeBtn
@@ -460,6 +481,10 @@ Func _SCN_AddControlButton_Back($GUI_BG_Color = $GUIThemeColor, $GUI_Font_Color 
 	Local $cbDPI = _HighDPICheck()
 	Local $CurrentGUI = GetCurrentGUI()
 	
+	If $GUI_BG_Color = Default Then $GUI_BG_Color = $GUIThemeColor
+	If $GUI_Font_Color = Default Then $GUI_Font_Color = $FontThemeColor
+	If $tMargin = Default Then $tMargin = 2
+	
 	;Set Colors
 	$GUI_BG_Color = "0xFF" & Hex($GUI_BG_Color, 6)
 	$GUI_Font_Color = "0xFF" & Hex($GUI_Font_Color, 6)
@@ -544,7 +569,7 @@ EndFunc   ;==>_SCN_AddControlButton_Back
 ;                  $mWidth              - Width of the Menu
 ;                  $ButtonsArray        - An array containing button names to be created.
 ;                                         Example: Local $MenuButtonsArray[4] = ["Settings","About","Contact","Exit"] ; id 0 = Settings, 1 = About, 2 = Contact, 3 = Exit
-;                  $bFont               - [optional] Custom font for the buttons. Default "Arial"
+;                  $bFont               - [optional] Custom font for the buttons. Default "Segoe UI"
 ;                  $bFontSize           - [optional] Custom font size for the buttons. Default 9
 ;                  $bFontStyle          - [optional] Custom font style for the buttons. Default 1
 ; Return values .: index of the clicked button from $ButtonsArray or @error and value "none" if nothing is clicked. Example: Users selects "Exit" button in the menu, so this function would return "3".
@@ -552,7 +577,11 @@ EndFunc   ;==>_SCN_AddControlButton_Back
 Func _SCN_MenuStart($mGUI, $mWidth, $ButtonsArray, $bFont = "Segoe UI", $bFontSize = 9, $bFontStyle = 0)
 	Local $Metro_MenuBtn = _iGetCtrlHandlebyType("8", $mGUI)
 	If Not $Metro_MenuBtn Then Return SetError(1)
-
+	
+	If $bFont = Default Then $bFont = "Segoe UI"
+	If $bFontSize = Default Then $bFontSize = 9
+	If $bFontStyle = Default Then $bFontStyle = 0
+	
 	Local $iButtonsArray[UBound($ButtonsArray)]
 	Local $cbDPI = _HighDPICheck()
 
@@ -624,7 +653,7 @@ Func _SCN_MenuStart($mGUI, $mWidth, $ButtonsArray, $bFont = "Segoe UI", $bFontSi
 EndFunc   ;==>_SCN_MenuStart
 
 
-Func _iCreateMButton($Text, $Left, $Top, $Width, $Height, $BG_Color = $GUIThemeColor, $Font_Color = $FontThemeColor, $Font = "Arial", $Fontsize = 9, $FontStyle = 1)
+Func _iCreateMButton($Text, $Left, $Top, $Width, $Height, $BG_Color = $GUIThemeColor, $Font_Color = $FontThemeColor, $Font = "Segoe UI", $Fontsize = 9, $FontStyle = 1)
 	Local $Button_Array[16]
 
 	If Not $HIGHDPI_SUPPORT Then
@@ -688,6 +717,10 @@ Func _SCN_RightClickMenu($mGUI, $mWidth, $ButtonsArray, $bFont = "Segoe UI", $bF
 	Local $ButtonStep = (25 * $cbDPI)
 	Local $cMarginR = Number(2 * $cbDPI, 1)
 	
+	If $bFont = Default Then $bFont = "Segoe UI"
+	If $bFontSize = Default Then $bFontSize = 9
+	If $bFontStyle = Default Then $bFontStyle = 0
+	
 	Local $DesktopSize = _GetDesktopWorkArea($mGUI, False)
 	If @error Then Return
 	;Fix position if  it is offscreen
@@ -728,10 +761,6 @@ Func _SCN_RightClickMenu($mGUI, $mWidth, $ButtonsArray, $bFont = "Segoe UI", $bF
 		Next
 	WEnd
 EndFunc   ;==>_SCN_RightClickMenu
-
-
-
-
 
 
 Func _iCreateControlButtons($ButtonsToCreate_Array, $GUI_BG_Color = $GUIThemeColor, $GUI_Font_Color = "0xFFFFFF", $CloseButtonOnStyle = False, $tMargin = 2)
@@ -792,8 +821,6 @@ Func _iCreateControlButtons($ButtonsToCreate_Array, $GUI_BG_Color = $GUIThemeCol
 		$Button_Close_Array[3] = "0" ; Type
 		$Button_Close_Array[15] = $CurrentGUI
 	EndIf
-
-
 
 	If $ButtonsToCreate_Array[1] Then
 		$PosCount = $PosCount + 1
@@ -1109,13 +1136,12 @@ EndFunc   ;==>_iCreateControlButtons
 #EndRegion GUI
 
 
-
 #Region Buttons
 ; ===============================================================================================================================
 ; Name ..........: _SCN_CreateButton
 ; Description ...: Creates metro style buttons. Hovering creates a frame around the buttons.
 ; Syntax ........: _SCN_CreateButton($Text, $Left, $Top, $Width, $Height[, $BGColor = $ButtonBKColor[,
-;                  $FontColor = $ButtonTextColor[, $Font = "Arial"[, $Fontsize = 12.5[, $FontStyle = 1 $FrameColor = "0xFFFFFF"]]]]])
+;                  $FontColor = $ButtonTextColor[, $Font = "Segoe UI"[, $Fontsize = 10[, $FontStyle = 1 $FrameColor = "0xFFFFFF"]]]]])
 ; Parameters ....: $Text               - Text of the button.
 ;                  $Left               - Left pos.
 ;                  $Top                - Top pos.
@@ -1123,16 +1149,23 @@ EndFunc   ;==>_iCreateControlButtons
 ;                  $Height             - Height.
 ;                  $BGColor         - [optional] Button background color. Default is $ButtonBKColor.
 ;                  $FontColor       - [optional] Font colore. Default is $ButtonTextColor.
-;                  $Font            - [optional] Font. Default is "Arial".
-;                  $Fontsize        - [optional] Fontsize. Default is 12.5.
+;                  $Font            - [optional] Font. Default is "Segoe UI".
+;                  $Fontsize        - [optional] Fontsize. Default is 10.
 ;                  $FontStyle       - [optional] Fontstyle. Default is 1.
 ;                  $FrameColor      - [optional] Button frame color. Default is "0xFFFFFF".
 ; Return values .: Handle to the button.
 ; Example .......: _SCN_CreateButton("Button 1",50,50,120,34)
 ; ===============================================================================================================================
 
-Func _SCN_CreateButton($Text, $Left, $Top, $Width, $Height, $BG_Color = $ButtonBKColor, $Font_Color = $ButtonTextColor, $Font = "Arial", $Fontsize = 10, $FontStyle = 1, $FrameColor = "0xFFFFFF")
+Func _SCN_CreateButton($Text, $Left, $Top, $Width, $Height, $BG_Color = $ButtonBKColor, $Font_Color = $ButtonTextColor, $Font = "Segoe UI", $Fontsize = 10, $FontStyle = 1, $FrameColor = "0xFFFFFF")
 	Local $Button_Array[16]
+
+	If $BG_Color = Default Then $BG_Color = $ButtonBKColor
+	If $Font_Color = Default Then $Font_Color = $ButtonTextColor
+	If $Font = Default Then $Font = "Segoe UI"
+	If $Fontsize = Default Then $Fontsize = 10
+	If $FontStyle = Default Then $FontStyle = 1
+	If $FrameColor = Default Then $FrameColor = "0xFFFFFF"
 
 	Local $btnDPI = _HighDPICheck()
 	;HighDPI Support
@@ -1205,7 +1238,7 @@ EndFunc   ;==>_SCN_CreateButton
 ; Name ..........: _SCN_CreateButtonEx
 ; Description ...: Creates Windows 10 style buttons with a frame around. Hovering changes the button color to a lighter color.
 ; Syntax ........: _SCN_CreateButtonEx($Text, $Left, $Top, $Width, $Height[, $BG_Color = $ButtonBKColor[,
-;                  $Font_Color = $ButtonTextColor[, $Font = "Arial"[, $Fontsize = 12.5[, $FontStyle = 1[,
+;                  $Font_Color = $ButtonTextColor[, $Font = "Segoe UI"[, $Fontsize = 10[, $FontStyle = 1[,
 ;                  $FrameColor = "0x1B1B1B"[, $Darker = False[, $Icon = ""]]]]]]]])
 ; Parameters ....: $Text            	- Text of the button.
 ;                  $Left              	- Left pos.
@@ -1214,8 +1247,8 @@ EndFunc   ;==>_SCN_CreateButton
 ;                  $Height              - Height.
 ;                  $BG_Color       	    - [optional] Button background color. Default is $ButtonBKColor.
 ;                  $Font_Color       	- [optional] Font colore. Default is $ButtonTextColor.
-;                  $Font            	- [optional] Font. Default is "Arial".
-;                  $Fontsize        	- [optional] Fontsize. Default is 12.5.
+;                  $Font            	- [optional] Font. Default is "Segoe UI".
+;                  $Fontsize        	- [optional] Fontsize. Default is 10.
 ;                  $FontStyle       	- [optional] Fontstyle. Default is 1.
 ;                  $FrameColor      	- [optional] Button frame color. Default is "0xFFFFFF".
 ;				   $Darker				- [optional] Hover effect darker for light button. Default is false.
@@ -1224,8 +1257,17 @@ EndFunc   ;==>_SCN_CreateButton
 ; Example .......: _SCN_CreateButtonEx("Button 1",50,50,120,34)
 ; ===============================================================================================================================
 
-Func _SCN_CreateButtonEx($Text, $Left, $Top, $Width, $Height, $BG_Color = $ButtonBKColor, $Font_Color = $ButtonTextColor, $Font = "Arial", $Fontsize = 10, $FontStyle = 1, $FrameColor = "0x1B1B1B", $Darker = False, $Icon = "")
+Func _SCN_CreateButtonEx($Text, $Left, $Top, $Width, $Height, $BG_Color = $GUIThemeColor, $Font_Color = $FontThemeColor, $Font = "Segoe UI", $Fontsize = 10, $FontStyle = 1, $FrameColor = "0x1B1B1B", $Darker = False, $Icon = "")
 	Local $Button_Array[16]
+
+	If $BG_Color = Default Then $BG_Color = $GUIThemeColor
+	If $Font_Color = Default Then $Font_Color = $FontThemeColor
+	If $Font = Default Then $Font = "Segoe UI"
+	If $Fontsize = Default Then $Fontsize = 10
+	If $FontStyle = Default Then $FontStyle = 1
+	If $FrameColor = Default Then $FrameColor = "0x1B1B1B"
+	If $Darker = Default Then $Darker = False
+	If $Icon = Default Then $Icon = ""
 
 	Local $btnDPI = _HighDPICheck()
 	If $HIGHDPI_SUPPORT Then
@@ -1332,12 +1374,11 @@ Func _SCN_CreateButtonEx($Text, $Left, $Top, $Width, $Height, $BG_Color = $Butto
 EndFunc   ;==>_SCN_CreateButtonEx
 
 
-
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _SCN_CreateButtonEx2
 ; Description ...: Creates a button without a frame and slightly rounded corners. Hovering changes the button color to a lighter color.
 ; Syntax ........: _SCN_CreateButtonEx2($Text, $Left, $Top, $Width, $Height[, $BG_Color = $ButtonBKColor[,
-;                  $Font_Color = $ButtonTextColor[, $Font = "Arial"[, $Fontsize = 12.5[, $FontStyle = 1[,
+;                  $Font_Color = $ButtonTextColor[, $Font = "Segoe UI"[, $Fontsize = 10[, $FontStyle = 1[,
 ;                  $FrameColor = "0xFFFFFF"]]]]]])
 ; Parameters ....: $Text            	- Text of the button.
 ;                  $Left              	- Left pos.
@@ -1346,16 +1387,23 @@ EndFunc   ;==>_SCN_CreateButtonEx
 ;                  $Height              - Height.
 ;                  $BG_Color       	    - [optional] Button background color. Default is $ButtonBKColor.
 ;                  $Font_Color       	- [optional] Font colore. Default is $ButtonTextColor.
-;                  $Font            	- [optional] Font. Default is "Arial".
-;                  $Fontsize        	- [optional] Fontsize. Default is 12.5.
+;                  $Font            	- [optional] Font. Default is "Segoe UI".
+;                  $Fontsize        	- [optional] Fontsize. Default is 10.
 ;                  $FontStyle       	- [optional] Fontstyle. Default is 1.
 ;                  $FrameColor      	- [optional] Button frame color. Default is "0xFFFFFF".
 ; Return values .: Handle to the button.
 ; Example .......: _SCN_CreateButtonEx2("Button 1",50,50,120,34)
 ; ===============================================================================================================================
 
-Func _SCN_CreateButtonEx2($Text, $Left, $Top, $Width, $Height, $BG_Color = $ButtonBKColor, $Font_Color = $ButtonTextColor, $Font = "Arial", $Fontsize = 10, $FontStyle = 1, $FrameColor = "0xFFFFFF")
+Func _SCN_CreateButtonEx2($Text, $Left, $Top, $Width, $Height, $BG_Color = $ButtonBKColor, $Font_Color = $ButtonTextColor, $Font = "Segoe UI", $Fontsize = 10, $FontStyle = 1, $FrameColor = "0xFFFFFF")
 	Local $Button_Array[16]
+
+	If $BG_Color = Default Then $BG_Color = $ButtonBKColor
+	If $Font_Color = Default Then $Font_Color = $ButtonTextColor
+	If $Font = Default Then $Font = "Segoe UI"
+	If $Fontsize = Default Then $Fontsize = 10
+	If $FontStyle = Default Then $FontStyle = 1
+	If $FrameColor = Default Then $FrameColor = "0xFFFFFF"
 
 	Local $btnDPI = _HighDPICheck()
 	If $HIGHDPI_SUPPORT Then
@@ -1446,7 +1494,7 @@ EndFunc   ;==>_SCN_CreateButtonEx2
 ; Name ..........: _SCN_CreateButtonBar
 ; Description ...: Creates Windows 10 style buttons used for tab. The font color change on hover and the bottom border cahnge on state
 ; Syntax ........: _SCN_CreateButtonBar($Text, $Left, $Top, $Width, $Height[, $BG_Color = $GUIThemeColor[,
-;                  $Font_Color = "0x000000"[, $Font = "Arial"[, $Fontsize = 11[, $FontStyle = 1[,
+;                  $Font_Color = "0x000000"[, $Font = "Segoe UI"[, $Fontsize = 10[, $FontStyle = 1[,
 ;                  $Font_SecondColor = $ButtonBKColor[, $Bar_Color = $GUIBorderColor[, $Bar_SecondColor = $ButtonBKColor,
 ;                  [ $Align = 1[, $Icon = ""]]]]]]]]]])
 ; Parameters ....: $Text            	- Text of the button.
@@ -1456,8 +1504,8 @@ EndFunc   ;==>_SCN_CreateButtonEx2
 ;                  $Height              - Height.
 ;                  $BG_Color       	    - [optional] Button background color. Default is $GUIThemeColor.
 ;                  $Font_Color       	- [optional] Font color. Default is "0x000000".
-;                  $Font            	- [optional] Font. Default is "Arial".
-;                  $Fontsize        	- [optional] Fontsize. Default is 12.5.
+;                  $Font            	- [optional] Font. Default is "Segoe UI".
+;                  $Fontsize        	- [optional] Fontsize. Default is 10.
 ;                  $FontStyle       	- [optional] Fontstyle. Default is 1.
 ;                  $Font_SecondColor    - [optional] Font hover (and inactive) color. Default is $ButtonBKColor.
 ;				   $Bar_Color			- [optional] Bottom border color. Default is $GUIBorderColor.
@@ -1468,9 +1516,20 @@ EndFunc   ;==>_SCN_CreateButtonEx2
 ; Example .......: _SCN_CreateButtonBar("Button 1",50,50,120,34)
 ; ===============================================================================================================================
 
-Func _SCN_CreateButtonBar($Text, $Left, $Top, $Width, $Height, $BG_Color = $GUIThemeColor, $Font_Color = "0x000000", $Font = "Arial", $Fontsize = 11, $FontStyle = 1, $Font_SecondColor = $ButtonBKColor, $Bar_Color = $GUIBorderColor, $Bar_SecondColor = $ButtonBKColor, $Align = 1, $Icon = "")
+Func _SCN_CreateButtonBar($Text, $Left, $Top, $Width, $Height, $BG_Color = $GUIThemeColor, $Font_Color = "0x000000", $Font = "Segoe UI", $Fontsize = 10, $FontStyle = 1, $Font_SecondColor = $ButtonBKColor, $Bar_Color = $GUIBorderColor, $Bar_SecondColor = $ButtonBKColor, $Align = 1, $Icon = "")
 	Local $Button_Array[16]
 
+	If $BG_Color = Default Then $BG_Color = $GUIThemeColor
+	If $Font_Color = Default Then $Font_Color = "0x000000"
+	If $Font = Default Then $Font = "Segoe UI"
+	If $Fontsize = Default Then $Fontsize = 10
+	If $FontStyle = Default Then $FontStyle = 1
+	If $Font_SecondColor = Default Then $Font_SecondColor = $ButtonBKColor
+	If $Bar_Color = Default Then $Bar_Color = $GUIBorderColor
+	If $Bar_SecondColor = Default Then $Bar_SecondColor = $ButtonBKColor
+	If $Align = Default Then $Align = 1
+	If $Icon = Default Then $Icon = ""
+	
 	Local $btnDPI = _HighDPICheck()
 	If $HIGHDPI_SUPPORT Then
 		$Left = Round($Left * $gDPI)
@@ -1635,6 +1694,12 @@ Func _SCN_CreateToggle($Text, $Left, $Top, $Width, $Height, $BG_Color = $GUIThem
 	If Not (Mod($Height, 2) = 0) Then
 		If (@Compiled = 0) Then MsgBox(48, "Metro UDF", "The toggle height should be an even number to prevent any misplacing.")
 	EndIf
+	
+	If $BG_Color = Default Then $BG_Color = $GUIThemeColor
+	If $Font_Color = Default Then $Font_Color = $FontThemeColor
+	If $Font = Default Then $Font = "Segoe UI"
+	If $Fontsize = Default Then $Fontsize = "11"
+	
 	;HighDPI Support
 	Local $pDPI = _HighDPICheck()
 	If $HIGHDPI_SUPPORT Then
@@ -1919,6 +1984,11 @@ Func _SCN_CreateToggleEX($Text, $Left, $Top, $Width, $Height, $BG_Color = $GUITh
 		If (@Compiled = 0) Then MsgBox(48, "Metro UDF", "The toggle height should be an even number to prevent any misplacing.")
 	EndIf
 
+	If $BG_Color = Default Then $BG_Color = $GUIThemeColor
+	If $Font_Color = Default Then $Font_Color = $FontThemeColor
+	If $Font = Default Then $Font = "Segoe UI"
+	If $Fontsize = Default Then $Fontsize = "11"
+
 	;HighDPI Support
 	If $HIGHDPI_SUPPORT Then
 		$Left = Round($Left * $gDPI)
@@ -2180,6 +2250,8 @@ EndFunc   ;==>_SCN_ToggleSwitch
 ;                  $NoAnimation         - [optional] True/False. Default is False. - Unchecks the toggle instantly without animation
 ; ===============================================================================================================================
 Func _SCN_ToggleUnCheck($Toggle, $NoAnimation = False)
+	If $NoAnimation = Default Then $NoAnimation = False
+	
 	For $i = 0 To (UBound($iHoverReg) - 1) Step +1
 		If $iHoverReg[$i][0] = $Toggle Then
 			If $iHoverReg[$i][2] Then
@@ -2209,6 +2281,8 @@ EndFunc   ;==>_SCN_ToggleUnCheck
 ;                  			  $NoAnimation         - [optional] True/False. Default is False. - Checks the Toggle instantly without an animation and prevents hover effect from getting stuck. Should be used always when creating a gui with a checked toggle before the gui is shown.
 ; ===============================================================================================================================
 Func _SCN_ToggleCheck($Toggle, $NoAnimation = False)
+	If $NoAnimation = Default Then $NoAnimation = False
+
 	For $i = 0 To (UBound($iHoverReg) - 1) Step +1
 		If $iHoverReg[$i][0] = $Toggle Then
 			If Not $iHoverReg[$i][2] Then
@@ -2255,6 +2329,14 @@ Func _SCN_CreateRadio($RadioGroup, $Text, $Left, $Top, $Width, $Height, $BG_Colo
 	If $Height < 22 And $RadioCircleSize > 21 Then
 		If (@Compiled = 0) Then MsgBox(48, "Metro UDF", "The min. height is 22px for metro radios.")
 	EndIf
+
+	If $BG_Color = Default Then $BG_Color = $GUIThemeColor
+	If $Font_Color = Default Then $Font_Color = $FontThemeColor
+	If $Font = Default Then $Font = "Segoe UI"
+	If $Fontsize = Default Then $Fontsize = "11"
+	If $FontStyle = Default Then $FontStyle = 0
+	If $RadioCircleSize = Default Then $RadioCircleSize = 22
+	If $ExStyle = Default Then $ExStyle = False
 
 	;HighDPI Support
 	Local $rDPI = _HighDPICheck()
@@ -2389,6 +2471,8 @@ EndFunc   ;==>_SCN_CreateRadioEx
 ;						 	  $NoHoverEffect	  - Default = False, True = Prevents the hover effect from appearing/freezing -> Should be used anytime the radio is not "clicked" by the user but checked manually during startup
 ; ===============================================================================================================================
 Func _SCN_RadioCheck($RadioGroup, $Radio, $NoHoverEffect = False)
+	If $NoHoverEffect = Default Then $NoHoverEffect = False
+
 	For $i = 0 To (UBound($iHoverReg) - 1) Step +1
 		If $iHoverReg[$i][0] = $Radio Then
 			$iHoverReg[$i][1] = True
@@ -2437,7 +2521,7 @@ EndFunc   ;==>_SCN_RadioIsChecked
 ; Name ..........: _SCN_CreateCheckbox
 ; Description ...: Creates a metro style checkbox
 ; Syntax ........: _SCN_CreateCheckbox($Text, $Left, $Top, $Width, $Height[, $BG_Color = $GUIThemeColor[,
-;                  $Font_Color = $FontThemeColor[, $Font = "Segoe UI"[, $FontSize = "11"[, $FontStyle = 0]]]]])
+;                  $Font_Color = $FontThemeColor[, $Font = "Segoe UI"[, $FontSize = "10"[, $FontStyle = 0]]]]])
 ; Parameters ....: $Text                - Text.
 ;                  $Left                - Left pos.
 ;                  $Top                 - Top pos.
@@ -2446,12 +2530,19 @@ EndFunc   ;==>_SCN_RadioIsChecked
 ;                  $BG_Color            - [optional] Background color. Default is $GUIThemeColor.
 ;                  $Font_Color          - [optional] Font color. Default is $FontThemeColor.
 ;                  $Font                - [optional] Font. Default is "Segoe UI".
-;                  $FontSize            - [optional] Fontsize. Default is "11".
+;                  $FontSize            - [optional] Fontsize. Default is "10".
 ;                  $FontStyle           - [optional] Fontstyle. Default is 0.
 ;                  $cb_style            - [optional] Creates a checkbox with the old design. You can also use _SCN_CreateCheckboxEx to do so.
 ; Return values .: Handle to the Checkbox
 ; ===============================================================================================================================
-Func _SCN_CreateCheckbox($Text, $Left, $Top, $Width, $Height, $BG_Color = $GUIThemeColor, $Font_Color = $FontThemeColor, $Font = "Segoe UI", $Fontsize = "11", $FontStyle = 0, $cb_style = 1)
+Func _SCN_CreateCheckbox($Text, $Left, $Top, $Width, $Height, $BG_Color = $GUIThemeColor, $Font_Color = $FontThemeColor, $Font = "Segoe UI", $Fontsize = "10", $FontStyle = 0, $cb_style = 1)
+	If $BG_Color = Default Then $BG_Color = $GUIThemeColor
+	If $Font_Color = Default Then $Font_Color = $FontThemeColor
+	If $Font = Default Then $Font = "Segoe UI"
+	If $Fontsize = Default Then $Fontsize = "10"
+	If $FontStyle = Default Then $FontStyle = 0
+	If $cb_style = Default Then $cb_style = 1
+	
 	;HighDPI Support
 	Local $chDPI = _HighDPICheck()
 	If $HIGHDPI_SUPPORT Then
@@ -2619,6 +2710,12 @@ EndFunc   ;==>_SCN_CreateCheckboxEx
 ; Return values .: Handle to the Checkbox
 ; ===============================================================================================================================
 Func _SCN_CreateCheckboxEx2($Text, $Left, $Top, $Width, $Height, $BG_Color = $GUIThemeColor, $Font_Color = $FontThemeColor, $Font = "Segoe UI", $Fontsize = "11", $FontStyle = 0)
+	If $BG_Color = Default Then $BG_Color = $GUIThemeColor
+	If $Font_Color = Default Then $Font_Color = $FontThemeColor
+	If $Font = Default Then $Font = "Segoe UI"
+	If $Fontsize = Default Then $Fontsize = "11"
+	If $FontStyle = Default Then $FontStyle = 0
+	
 	;HighDPI Support
 	Local $chDPI = _HighDPICheck()
 	If $HIGHDPI_SUPPORT Then
@@ -2777,6 +2874,8 @@ EndFunc   ;==>_SCN_CheckboxUnCheck
 ;							  $NoHoverEffect	  - Default = False, True = Prevents the hover effect from appearing/freezing -> Should be used anytime the checkbox is not "clicked" by the user but checked manually during startup
 ; ===============================================================================================================================
 Func _SCN_CheckboxCheck($Checkbox, $NoHoverEffect = False)
+	If $NoHoverEffect = Default Then $NoHoverEffect = False
+
 	For $i = 0 To (UBound($iHoverReg) - 1) Step +1
 		If $iHoverReg[$i][0] = $Checkbox Then
 			$iHoverReg[$i][2] = True
@@ -2826,6 +2925,12 @@ EndFunc   ;==>_SCN_CheckboxSwitch
 ; ===============================================================================================================================
 Func _SCN_MsgBox($Flag, $Title, $Text, $mWidth = 600, $Fontsize = 11, $ParentGUI = "", $Timeout = 0)
 	Local $1stButton, $2ndButton, $3rdButton, $1stButtonText = "-", $2ndButtonText = "-", $3rdButtonText = "-", $Buttons_Count = 1
+
+	If $mWidth = Default Then $mWidth = 600
+	If $Fontsize = Default Then $Fontsize = 11
+	If $ParentGUI = Default Then $ParentGUI = ""
+	If $Timeout = Default Then $Timeout = 0
+
 	Switch $Flag
 		Case 0 ;OK
 			$Buttons_Count = 1
@@ -2874,18 +2979,18 @@ Func _SCN_MsgBox($Flag, $Title, $Text, $mWidth = 600, $Fontsize = 11, $ParentGUI
 		$Fontsize = ($Fontsize / $Font_DPI_Ratio)
 	EndIf
 
-	Local $LabelSize = _StringSize($Text, $Fontsize, 400, 0, "Arial", $mWidth - (30 * $msgbDPI))
+	Local $LabelSize = _StringSize($Text, $Fontsize, 400, 0, "Segoe UI", $mWidth - (30 * $msgbDPI))
 	Local $mHeight = 120 + ($LabelSize[3] / $msgbDPI)
 	Local $MsgBox_Form = _SCN_CreateGUI($Title, $mWidth / $msgbDPI, $mHeight, -1, -1, False, $ParentGUI)
 	$mHeight = $mHeight * $msgbDPI
 	GUICtrlCreateLabel(" " & $Title, 2 * $msgbDPI, 2 * $msgbDPI, $mWidth - (4 * $msgbDPI), 30 * $msgbDPI, 0x0200, 0x00100000)
 	GUICtrlSetBkColor(-1, _AlterBrightness($GUIThemeColor, 30))
 	GUICtrlSetColor(-1, $FontThemeColor)
-	_GUICtrlSetFont(-1, 11, 600, 0, "Arial", 5)
+	_GUICtrlSetFont(-1, 11, 600, 0, "Segoe UI", 5)
 	GUICtrlCreateLabel($Text, 15 * $msgbDPI, 50 * $msgbDPI, $LabelSize[2], $LabelSize[3], -1, 0x00100000)
 	GUICtrlSetBkColor(-1, $GUIThemeColor)
 	GUICtrlSetColor(-1, $FontThemeColor)
-	GUICtrlSetFont(-1, $Fontsize, 400, 0, "Arial", 5)
+	GUICtrlSetFont(-1, $Fontsize, 400, 0, "Segoe UI", 5)
 
 	Local $1stButton_Left = (($mWidth / $msgbDPI) - ($Buttons_Count * 100) - (($Buttons_Count - 1) * 20)) / 2
 	Local $1stButton_Left1 = ($mWidth - ($Buttons_Count * (100 * $msgbDPI)) - (($Buttons_Count - 1) * (20 * $msgbDPI))) / 2
@@ -2987,6 +3092,13 @@ EndFunc   ;==>_SCN_MsgBox
 ; ===============================================================================================================================
 Func _SCN_InputBox($Promt, $Font_Size = 11, $DefaultText = "", $PW = False, $EnableEnterHotkey = True, $ParentGUI = "")
 	Local $Metro_Input, $Metro_Input_GUI
+
+	If $Font_Size = Default Then $Font_Size = 11
+	If $DefaultText = Default Then $DefaultText = ""
+	If $PW = Default Then $PW = False
+	If $EnableEnterHotkey = Default Then $EnableEnterHotkey = True
+	If $ParentGUI = Default Then $ParentGUI = ""
+
 	If $ParentGUI = "" Then
 		$Metro_Input_GUI = _SCN_CreateGUI($Promt, 460, 170, -1, -1, False)
 	Else
@@ -3044,7 +3156,7 @@ EndFunc   ;==>_SCN_InputBox
 ; Name ..........: _SCN_CreateLabel
 ; Description ...: Creates Windows 10 style label.
 ; Syntax ........: _SCN_CreateLabel($Text, $Left, $Top, $Width, $Height [, $Style = -1 [, $Exstyle = -1 [,
-;                  $BG_Color = $GUIThemeColor [,$Font_Color = $FontThemeColor [, $Font = "Arial" [, $Fontsize = 10 [, $Fontweight = 400 [,
+;                  $BG_Color = $GUIThemeColor [,$Font_Color = $FontThemeColor [, $Font = "Segoe UI" [, $Fontsize = 9 [, $Fontweight = 500 [,
 ;                  $Fontstyle = 0]]]]]]]])
 ; Parameters ....: $Text            	- Text of the input.
 ;                  $Left              	- Left pos.
@@ -3055,16 +3167,25 @@ EndFunc   ;==>_SCN_InputBox
 ;                  $Exstyle     	  	- [optional] ExStyle of the input (see GUICtrlCreateInput). Default is -1.
 ;                  $BG_Color       	    - [optional] Input background color. Default is $GUIThemeColor.
 ;                  $Font_Color       	- [optional] Font color. Default is $FontThemeColor.
-;                  $Font		       	- [optional] Font. Default is "Arial".
-;                  $Fontsize     	 	- [optional] Font size. Default is 10.
-;				   $Fontweight			- [optional] Font weight. Default is 400.
+;                  $Font		       	- [optional] Font. Default is "Segoe UI".
+;                  $Fontsize     	 	- [optional] Font size. Default is 9.
+;				   $Fontweight			- [optional] Font weight. Default is 500.
 ;				   $Fontstyle			- [optional] Font style (see GUICtrlSetFont). Default is 0.
 ; Return values .: Handle to the label.
 ; Example .......: _SCN_CreateLabel("Text",50,50,120,34)
 ; ===============================================================================================================================
 
-Func _SCN_CreateLabel($Text, $Left, $Top, $Width, $Height, $Style = -1, $Exstyle = -1, $BG_Color = $GUIThemeColor, $Font_Color = $FontThemeColor, $Font = "Segoe UI", $Fontsize = 10, $Fontweight =  500,  $Fontstyle = 0)
+Func _SCN_CreateLabel($Text, $Left, $Top, $Width, $Height, $Style = -1, $Exstyle = -1, $BG_Color = $GUIThemeColor, $Font_Color = $FontThemeColor, $Font = "Segoe UI", $Fontsize = 9, $Fontweight =  500,  $Fontstyle = 0)
 	Local $Label_Array[16]
+
+	If $Style = Default Then $Style = -1
+	If $Exstyle = Default Then $Exstyle = -1
+	If $BG_Color = Default Then $BG_Color = $GUIThemeColor
+	If $Font_Color = Default Then $Font_Color = $FontThemeColor
+	If $Font = Default Then $Font = "Segoe UI"
+	If $Fontsize = Default Then $Fontsize = 9
+	If $Fontweight = Default Then $Fontweight = 500
+	If $Fontstyle = Default Then $Fontstyle = 0
 
 	If $HIGHDPI_SUPPORT Then
 		$Left = Round($Left * $gDPI)
@@ -3106,6 +3227,10 @@ EndFunc		;==>_SCN_CreateLabel
 ; ===============================================================================================================================
 Func _SCN_CreateProgress($Left, $Top, $Width, $Height, $EnableBorder = False, $Backgroud_Color = $CB_Radio_Color, $Progress_Color = $ButtonBKColor)
 	Local $Progress_Array[8]
+
+	If $EnableBorder = Default Then $EnableBorder = False
+	If $Backgroud_Color = Default Then $Backgroud_Color = $CB_Radio_Color
+	If $Progress_Color = Default Then $Progress_Color = $ButtonBKColor
 
 	If $HIGHDPI_SUPPORT Then
 		$Left = Round($Left * $gDPI)
@@ -3188,7 +3313,7 @@ EndFunc   ;==>_SCN_SetProgress
 ; Name ..........: _SCN_CreateComboBox
 ; Description ...: Creates Windows 10 style ComboBox with a frame around. Hovering changes the combobox color to a lighter or darker color.
 ; Syntax ........: _SCN_CreateComboBox($Text, $Left, $Top, $Width, $Height[, $BG_Color = $ButtonBKColor[,
-;                  $Font_Color = $ButtonTextColor[, $Font = "Arial"[, $Fontsize = 12.5[, $FontStyle = 1[,
+;                  $Font_Color = $ButtonTextColor[, $Font = "Segoe UI"[, $Fontsize = 10[, $FontStyle = 1[,
 ;                  $FrameColor = "0x1B1B1B"[, $Darker = False]]]]]]])
 ; Parameters ....: $Text            	- Text of the Combobox.
 ;                  $Left              	- Left pos.
@@ -3197,17 +3322,25 @@ EndFunc   ;==>_SCN_SetProgress
 ;                  $Height              - Height.
 ;                  $BG_Color       	    - [optional] Combobox background color. Default is $ButtonBKColor.
 ;                  $Font_Color       	- [optional] Font colore. Default is $ButtonTextColor.
-;                  $Font            	- [optional] Font. Default is "Arial".
-;                  $Fontsize        	- [optional] Fontsize. Default is 12.5.
-;                  $FontStyle       	- [optional] Fontstyle. Default is 1.
+;                  $Font            	- [optional] Font. Default is "Segoe UI".
+;                  $Fontsize        	- [optional] Fontsize. Default is 10.
+;                  $FontStyle       	- [optional] Fontstyle. Default is 0.
 ;                  $FrameColor      	- [optional] Combobox frame color. Default is "0x1B1B1B".
 ;				   $Darker				- [optional] Hover effect darker for light combobox. Default is false.
 ; Return values .: Handle to the Combobox.
 ; Example .......: _SCN_CreateComboBox("ComboBox 1",50,50,120,34)
 ; ===============================================================================================================================
 
-Func _SCN_CreateComboBox($Text, $Left, $Top, $Width, $Height, $BG_Color = $ButtonBKColor, $Font_Color = $ButtonTextColor, $Font = "Arial", $Fontsize = 11, $FontStyle = 1, $FrameColor = "0x1B1B1B", $Darker = False)
+Func _SCN_CreateComboBox($Text, $Left, $Top, $Width, $Height, $BG_Color = $GUIThemeColor, $Font_Color = $FontThemeColor, $Font = "Segoe UI", $Fontsize = 10, $FontStyle = 0, $FrameColor = "0x1B1B1B", $Darker = False)
 	Local $Combo_Array[16]
+
+	If $BG_Color = Default Then $BG_Color = $GUIThemeColor
+	If $Font_Color = Default Then $Font_Color = $FontThemeColor
+	If $Font = Default Then $Font = "Segoe UI"
+	If $Fontsize = Default Then $Fontsize = 10
+	If $FontStyle = Default Then $FontStyle = 0
+	If $FrameColor = Default Then $FrameColor = "0x1B1B1B"
+	If $Darker = Default Then $Darker = False
 
 	Local $ComboDPI = _HighDPICheck()
 	If $HIGHDPI_SUPPORT Then
@@ -3508,7 +3641,7 @@ EndFunc
 ; Name ..........: _SCN_CreateInput
 ; Description ...: Creates Windows 10 style input.
 ; Syntax ........: _SCN_CreateInput($Text, $Left, $Top, $Width, $Height [, $Style = -1 [, $Exstyle = -1 [,
-;                  $BG_Color = $GUIThemeColor [,$Font_Color = $FontThemeColor [, $Font = "Arial" [, $Fontsize = 10 [, $Fontweight = 400 [,
+;                  $BG_Color = $GUIThemeColor [,$Font_Color = $FontThemeColor [, $Font = "Segoe UI" [, $Fontsize = 10 [, $Fontweight = 400 [,
 ;                  $Fontstyle = 0]]]]]]]])
 ; Parameters ....: $Text            	- Text of the input.
 ;                  $Left              	- Left pos.
@@ -3519,7 +3652,7 @@ EndFunc
 ;                  $Exstyle     	  	- [optional] ExStyle of the input (see GUICtrlCreateInput). Default is -1.
 ;                  $BG_Color       	    - [optional] Input background color. Default is $GUIThemeColor.
 ;                  $Font_Color       	- [optional] Font color. Default is $FontThemeColor.
-;                  $Font		       	- [optional] Font. Default is "Arial".
+;                  $Font		       	- [optional] Font. Default is "Segoe UI".
 ;                  $Fontsize     	 	- [optional] Font size. Default is 10.
 ;				   $Fontweight			- [optional] Font weight. Default is 400.
 ;				   $Fontstyle			- [optional] Font style (see GUICtrlSetFont). Default is 0.
@@ -3527,8 +3660,17 @@ EndFunc
 ; Example .......: _SCN_CreateInput("",50,50,120,34)
 ; ===============================================================================================================================
 
-Func _SCN_CreateInput($Text, $Left, $Top, $Width, $Height, $Style = -1, $Exstyle = -1, $BG_Color = $GUIThemeColor, $Font_Color = $FontThemeColor, $Font = "Arial", $Fontsize = 10, $Fontweight =  400,  $Fontstyle = 0)
+Func _SCN_CreateInput($Text, $Left, $Top, $Width, $Height, $Style = -1, $Exstyle = -1, $BG_Color = $GUIThemeColor, $Font_Color = $FontThemeColor, $Font = "Segoe UI", $Fontsize = 9, $Fontweight =  400,  $Fontstyle = 0)
 	Local $Input_Array[16]
+
+	If $Style = Default Then $Style = -1
+	If $Exstyle = Default Then $Exstyle = -1
+	If $BG_Color = Default Then $BG_Color = $GUIThemeColor
+	If $Font_Color = Default Then $Font_Color = $FontThemeColor
+	If $Font = Default Then $Font = "Segoe UI"
+	If $Fontsize = Default Then $Fontsize = 9
+	If $Fontweight = Default Then $Fontweight = 400
+	If $FontStyle = Default Then $FontStyle = 0
 
 	If $HIGHDPI_SUPPORT Then
 		$Left = Round($Left * $gDPI)
@@ -3567,6 +3709,8 @@ EndFunc ;_SCNCreateInput
 ; Return values .: Handle to the Seperator
 ; ===============================================================================================================================
 Func _SCN_AddHSeperator($Left, $Top, $Width, $Size, $Color = $GUIBorderColor)
+	If $Color = Default Then $Color = $GUIBorderColor
+	
 	If $HIGHDPI_SUPPORT Then
 		$Left = Round($Left * $gDPI)
 		$Top = Round($Top * $gDPI)
@@ -3593,6 +3737,8 @@ EndFunc   ;==>_SCN_AddHSeperator
 ; Return values .: Handle to the Seperator
 ; ===============================================================================================================================
 Func _SCN_AddVSeperator($Left, $Top, $Height, $Size, $Color = $GUIBorderColor)
+	If $Color = Default Then $Color = $GUIBorderColor
+
 	If $HIGHDPI_SUPPORT Then
 		$Left = Round($Left * $gDPI)
 		$Top = Round($Top * $gDPI)
@@ -4151,4 +4297,42 @@ EndFunc   ;==>_iGetGUIID
 
 Func _iFullscreenToggleBtn($idCtrl, $hWnd)
 	If $ControlBtnsAutoMode Then _SCN_FullscreenToggle($hWnd)
-EndFunc		;==>_iFullscreenToggleBtn
+EndFunc		;==>_iFullscreenToggleBtn
+
+
+
+#Region A Voir
+; =================================================================================================================================================
+; =====A VOIR=======A VOIR=======A VOIR=======A VOIR=======A VOIR=======A VOIR=======A VOIR=======A VOIR=======A VOIR=======A VOIR=======A VOIR====
+; =================================================================================================================================================
+
+
+
+Func _SCN_CreateGroup($Text,$x,$y,$w,$h,$tyle=-1,$xstyle =-1,$Font_Color = $FontThemeColor, $Font = "Segoe UI", $Fontsize = "12")
+$hgroup = GUICtrlCreateGroup($Text,$x,$y,$w,$h,$tyle,$xstyle)
+DllCall("UxTheme.dll", "int", "SetWindowTheme", "hwnd", GUICtrlGetHandle($hgroup), "wstr", 0, "wstr", 0)
+    GUICtrlSetFont($hgroup, $Fontsize, 500, 0, $Font)
+    GUICtrlSetColor($hgroup, $Font_Color)
+    Return $hgroup
+EndFunc
+
+Func _SCN_CreateCombo($Text,$x,$y,$w,$h,$tyle=-1,$xstyle =-1,$BG_Color = $GUIThemeColor,$Font_Color = $FontThemeColor, $Font = "Segoe UI", $Fontsize = "9")
+    $hcombo = GUICtrlCreateCombo($Text,$x,$y,$w,$h,$tyle,$xstyle)
+DllCall("UxTheme.dll", "int", "SetWindowTheme", "hwnd", GUICtrlGetHandle($hcombo), "wstr", 0, "wstr", 0)
+    GUICtrlSetFont($hcombo, $Fontsize, 400, 0, $Font)
+    GUICtrlSetColor($hcombo, $Font_Color)
+    GUICtrlSetBkColor($hcombo,$GUIThemeColor)
+    Return $hcombo
+EndFunc
+#EndRegion A voir
+
+; Listeview
+; _SCN_CreateButtonFlat
+; _SCN_CreateBascule
+; _GUICtrlHyperLink_Create
+
+
+
+
+
+
